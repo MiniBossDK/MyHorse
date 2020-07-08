@@ -2,10 +2,10 @@ name: MyHorse
 main: com.dogonfire.myhorse.MyHorse
 author: DogOnFire
 version: 0.3.4
+api-version: 1.16
 description: Horse Control for Minecraft!
 website: http://dev.bukkit.org/server-mods/myhorse
-softdepend: [PermissionsBukkit, PermissionsEx, bPermissions, GroupManager, Vault, Multiverse-Core]
-load: POSTWORLD
+softdepend: [Vault]
 commands:
   myhorse:
     description: Controls the MyHorse system

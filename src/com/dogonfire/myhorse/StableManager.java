@@ -13,8 +13,8 @@ public class StableManager
 {
   private MyHorse plugin = null;
   private Random random = new Random();
-  private HashMap<String, String> playerBets = new HashMap();
-  private HashMap<String, Integer> betAmounts = new HashMap();
+  private HashMap<String, String> playerBets = new HashMap<>();
+  private HashMap<String, Integer> betAmounts = new HashMap<>();
   private int leaderWaypoint = 0;
   String leaderPlayerName;
   private long lastRaceTime = 0L;
@@ -54,7 +54,7 @@ public class StableManager
   
   public String getOwnerFromStableSign(Block block, String[] lines)
   {
-    if ((block == null) || (block.getType() != Material.WALL_SIGN)) {
+    if ((block == null) || (block.getType() != Material.OAK_SIGN)) {
       return null;
     }
     String stableHeader = lines[0].trim();
@@ -131,7 +131,7 @@ public class StableManager
       Integer stableIdentifier = getStableByInsideLocation(block.getLocation());
       if (stableIdentifier == null)
       {
-        List<Location> list = new ArrayList();
+        List<Location> list = new ArrayList<>();
         Location max = new Location(block.getWorld(), -99999.0D, 0.0D, -99999.0D);
         Location min = new Location(block.getWorld(), 99999.0D, 0.0D, 99999.0D);
         
@@ -144,6 +144,7 @@ public class StableManager
         min.setX(min.getX() - 1.0D);
         min.setZ(min.getZ() - 1.0D);
         
+        // TODO - Delete?
         int i = newStable(ownerName, min, max);
       }
       return;

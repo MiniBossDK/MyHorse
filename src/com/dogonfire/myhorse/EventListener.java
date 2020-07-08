@@ -1,22 +1,15 @@
 package com.dogonfire.myhorse;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
-import net.milkbowl.vault.economy.Economy;
-
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Server;
-import org.bukkit.entity.AnimalTamer;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Hanging;
 import org.bukkit.entity.Horse;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
@@ -25,7 +18,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntityTameEvent;
@@ -37,8 +29,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitScheduler;
 
 public class EventListener implements Listener
 {
@@ -61,7 +51,7 @@ public class EventListener implements Listener
 
 	public void onEntityPortalEvent(EntityPortalEvent event)
 	{
-		if (event.getEntity().getType() != EntityType.HORSE)
+		if (!(event.getEntity() instanceof AbstractHorse) && event.getEntity().getType() == EntityType.LLAMA || event.getEntity().getType() == EntityType.TRADER_LLAMA)
 		{
 			return;
 		}
@@ -85,7 +75,7 @@ public class EventListener implements Listener
 		}
 		for (Entity entity : event.getChunk().getEntities())
 		{
-			if (entity.getType() == EntityType.HORSE)
+			if (entity instanceof AbstractHorse && entity.getType() != EntityType.LLAMA || entity.getType() != EntityType.TRADER_LLAMA)
 			{
 				UUID horseIdentifier = entity.getUniqueId();
 				if (this.plugin.getHorseManager().isHorseOwned(horseIdentifier))
@@ -155,7 +145,7 @@ public class EventListener implements Listener
 		{
 			return;
 		}
-		if (event.getVehicle().getType() != EntityType.HORSE)
+		if (!(event.getVehicle() instanceof AbstractHorse) && event.getVehicle().getType() == EntityType.LLAMA || event.getVehicle().getType() == EntityType.TRADER_LLAMA)
 		{
 			this.plugin.logDebug(event.getVehicle().getType().name());
 			return;
@@ -167,7 +157,7 @@ public class EventListener implements Listener
 		Player player = (Player) event.getEntered();
 
 		UUID horseIdentifier = event.getVehicle().getUniqueId();
-
+		
 		String horseName = this.plugin.getHorseManager().getNameForHorse(horseIdentifier);
 		if (horseName == null)
 		{
@@ -175,7 +165,7 @@ public class EventListener implements Listener
 			return;
 		}
 		this.plugin.getHorseManager().setHorseLastSelectionPosition(horseIdentifier, event.getEntered().getLocation());
-		if ((player.isOp()) || (this.plugin.getPermissionsManager().hasPermission(player, "myhorse.bypass.mount")) || (this.plugin.getPermissionsManager().hasPermission(player, "myhorse.admin")))
+		if ((player.isOp()) || (this.plugin.getPermissionsManager().hasPermission((Player) player, "myhorse.bypass.mount")) || (this.plugin.getPermissionsManager().hasPermission(player, "myhorse.admin")))
 		{
 			this.plugin.getOwnerManager().setCurrentHorseIdentifierForPlayer(player.getUniqueId(), horseIdentifier);
 			this.plugin.getLanguageManager().setName(horseName);
@@ -197,7 +187,7 @@ public class EventListener implements Listener
 				{
 					this.plugin.getLanguageManager().setName(player.getName());
 					player.sendMessage(ChatColor.RED + this.plugin.getLanguageManager().getLanguageString(LanguageManager.LANGUAGESTRING.CannotUseLockedHorse, ChatColor.DARK_RED));
-
+					
 					event.setCancelled(true);
 
 					return;
@@ -218,7 +208,7 @@ public class EventListener implements Listener
 	@EventHandler
 	public void onEntityTameEvent(EntityTameEvent event)
 	{
-		if (event.getEntity().getType() != EntityType.HORSE)
+		if (!(event.getEntity() instanceof AbstractHorse) && event.getEntity().getType() == EntityType.LLAMA || event.getEntity().getType() == EntityType.TRADER_LLAMA)
 		{
 			return;
 		}
@@ -249,14 +239,18 @@ public class EventListener implements Listener
 		while (this.plugin.getHorseManager().ownedHorseWithName(event.getOwner().getName(), horseName).booleanValue());
 		this.plugin.getHorseManager().setNameForHorse(horseIdentifier, horseName);
 
-		Horse horse = (Horse) event.getEntity();
+		AbstractHorse horse = (AbstractHorse) event.getEntity();
 
 		horse.setCustomName(this.plugin.getHorseNameColorForPlayer(event.getOwner().getUniqueId()) + horseName);
 		horse.setCustomNameVisible(true);
 
 		this.plugin.getHorseManager().setLockedForHorse(horseIdentifier, true);
 		this.plugin.getHorseManager().setOwnerForHorse(horseIdentifier, event.getOwner().getUniqueId());
-		this.plugin.getHorseManager().setHorseStatistics(horseIdentifier, horse.getStyle(), horse.getMaxHealth(), horse.getJumpStrength(), horse.getVariant());
+		if(horse instanceof Horse) {
+			Horse h = (Horse) event.getEntity();
+			
+			this.plugin.getHorseManager().setHorseStatistics(horseIdentifier, h.getStyle(), h.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), h.getJumpStrength(), h.getColor());
+		}
 		if (player != null)
 		{
 			this.plugin.getOwnerManager().setCurrentHorseIdentifierForPlayer(player.getUniqueId(), horseIdentifier);
@@ -292,6 +286,14 @@ public class EventListener implements Listener
 		this.plugin.getStableManager().handleBlockClick(event.getPlayer().getName(), event.getClickedBlock());
 	}
 
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEntityEvent event) {
+		Entity entity = (AbstractHorse) event.getRightClicked();
+		if(entity instanceof AbstractHorse && entity.getType() != EntityType.LLAMA || entity.getType() != EntityType.TRADER_LLAMA) {
+			entity.addPassenger(event.getPlayer());
+		}
+	}
+	
 	@EventHandler(priority = EventPriority.LOW)
 	public void OnSignChange(SignChangeEvent event)
 	{
@@ -306,7 +308,7 @@ public class EventListener implements Listener
 		}
 		for (Entity nearbyEntity : event.getEntity().getNearbyEntities(5.0D, 3.0D, 5.0D))
 		{
-			if (nearbyEntity.getType() == EntityType.HORSE)
+			if (nearbyEntity instanceof AbstractHorse && nearbyEntity.getType() != EntityType.LLAMA || nearbyEntity.getType() != EntityType.TRADER_LLAMA)
 			{
 				event.setCancelled(true);
 				break;
@@ -326,9 +328,9 @@ public class EventListener implements Listener
 		{
 			for (Entity nearbyEntity : event.getPlayer().getNearbyEntities(5.0D, 3.0D, 5.0D))
 			{
-				if (nearbyEntity.getType() == EntityType.HORSE)
+				if (nearbyEntity instanceof AbstractHorse && nearbyEntity.getType() != EntityType.LLAMA || nearbyEntity.getType() != EntityType.TRADER_LLAMA)
 				{
-					Horse horse = (Horse) nearbyEntity;
+					AbstractHorse horse = (AbstractHorse) nearbyEntity;
 					if (horse.isLeashed())
 					{
 						if (this.plugin.getHorseManager().isHorseOwned(horse.getUniqueId()))
@@ -352,7 +354,7 @@ public class EventListener implements Listener
 			return;
 		}
 
-		if (event.getRightClicked().getType() != EntityType.HORSE)
+		if (!(event.getRightClicked() instanceof AbstractHorse) && event.getRightClicked().getType() == EntityType.LLAMA || event.getRightClicked().getType() == EntityType.TRADER_LLAMA)
 		{
 			return;
 		}
@@ -388,7 +390,7 @@ public class EventListener implements Listener
 
 					if (!this.plugin.getOwnerManager().isBuying(player.getUniqueId(), horseIdentifier))
 					{
-						if (this.plugin.getEconomy().has(player.getName(), price))
+						if (this.plugin.getEconomy().has(player, price))
 						{
 							player.sendMessage(this.plugin.getLanguageManager().getLanguageString(LanguageManager.LANGUAGESTRING.AreYouSureYouWantToBuyHorse, ChatColor.AQUA));
 							this.plugin.getOwnerManager().setBuying(player.getUniqueId(), horseIdentifier, true);
@@ -405,7 +407,7 @@ public class EventListener implements Listener
 					{
 						Player ownerPlayer = this.plugin.getServer().getPlayer(ownerId);
 
-						Horse horse = (Horse) entity;
+						AbstractHorse horse = (AbstractHorse) entity;
 						horse.setCustomName(this.plugin.getHorseNameColorForPlayer(player.getUniqueId()) + horseName);
 						horse.setOwner(player);
 
@@ -423,14 +425,14 @@ public class EventListener implements Listener
 							ownerPlayer.sendMessage(this.plugin.getLanguageManager().getLanguageString(LanguageManager.LANGUAGESTRING.PlayerBoughtYourHorse, ChatColor.GREEN));
 						}
 
-						String ownerName = this.plugin.getServer().getOfflinePlayer(ownerId).getName();
+						Player ownerName = (Player) this.plugin.getServer().getOfflinePlayer(ownerId);
 						
 						this.plugin.getLanguageManager().setAmount("" + price);
 						this.plugin.getLanguageManager().setName(horseName);
-						this.plugin.getLanguageManager().setPlayerName(ownerName);
+						this.plugin.getLanguageManager().setPlayerName(ownerName.getName());
 						player.sendMessage(this.plugin.getLanguageManager().getLanguageString(LanguageManager.LANGUAGESTRING.YouBoughtHorse, ChatColor.GREEN));
 
-						this.plugin.getEconomy().withdrawPlayer(player.getName(), price);
+						this.plugin.getEconomy().withdrawPlayer(player, price);
 						this.plugin.getEconomy().depositPlayer(ownerName, price);
 					}
 					event.setCancelled(true);
@@ -440,10 +442,10 @@ public class EventListener implements Listener
 			}
 		}
 
-		// Leash protection
-		if (player.getItemInHand() != null)
+		// Lead protection
+		if (player.getInventory().getItemInMainHand() != null || player.getInventory().getItemInOffHand().getType() != null)
 		{
-			if (player.getItemInHand().getType() == Material.LEASH)
+			if (player.getInventory().getItemInMainHand().getType() == Material.LEAD || player.getInventory().getItemInOffHand().getType() == Material.LEAD)
 			{
 				if (this.plugin.getPermissionsManager().hasPermission(player, "myhorse.bypass.leash"))
 				{
@@ -484,31 +486,35 @@ public class EventListener implements Listener
 					}
 				}
 			}
-
-			if (this.plugin.allowChestsOnAllHorses)
+			// TODO - Make a workaround that make any horse able to carry a chest
+			if (this.plugin.allowChestsOnAllHorses) 
 			{
-				Horse horse = (Horse) entity;
-				if ((player.getItemInHand() != null) && (player.getItemInHand().getType() == Material.CHEST))
-				{
-					if (!horse.isCarryingChest())
+				if(!this.plugin.getHorseManager().isHorseCarryingChest(horseIdentifier)) {
+					if ((player.getInventory().getItemInMainHand() != null))
 					{
-						if (player.getItemInHand().getAmount() <= 1)
-						{
-							horse.setCarryingChest(true);
-							player.setItemInHand(null);
-							this.plugin.getLanguageManager().setName(horse.getCustomName());
-							player.sendMessage(ChatColor.RED + this.plugin.getLanguageManager().getLanguageString(LanguageManager.LANGUAGESTRING.YouPutAChestOnHorse, ChatColor.GREEN));
-
-							event.setCancelled(true);
-
-							return;
+						if(player.getInventory().getItemInMainHand().getType() == Material.CHEST) {
+							
+							if (this.plugin.getHorseManager().isHorseCarryingChest(horseIdentifier))
+							{
+								if (player.getInventory().getItemInMainHand().getAmount() <= 1)
+								{
+									plugin.getHorseManager().createCustomInventoryForHorse(horseIdentifier);
+									AbstractHorse horse = (AbstractHorse) entity;
+									this.plugin.getLanguageManager().setName(horse.getCustomName());
+									player.sendMessage(ChatColor.RED + this.plugin.getLanguageManager().getLanguageString(LanguageManager.LANGUAGESTRING.YouPutAChestOnHorse, ChatColor.GREEN));
+		
+									event.setCancelled(true);
+		
+									return;
+								}
+							}
 						}
 					}
 				}
 			}
 			return;
 		}
-
+		
 		if (this.plugin.getHorseManager().isHorseLocked(horseIdentifier))
 		{
 			if (this.plugin.getPermissionsManager().hasPermission(player, "myhorse.bypass.mount"))
@@ -537,7 +543,7 @@ public class EventListener implements Listener
 	@EventHandler
 	public void onEntityDamageEvent(EntityDamageEvent event)
 	{
-		if (event.getEntity().getType() != EntityType.HORSE)
+		if (!(event.getEntity() instanceof AbstractHorse) && (event.getEntity().getType() == EntityType.LLAMA || event.getEntity().getType() == EntityType.TRADER_LLAMA))
 		{
 			return;
 		}
@@ -561,7 +567,7 @@ public class EventListener implements Listener
 	@EventHandler
 	public void onEntityDeathEvent(EntityDeathEvent event)
 	{
-		if (event.getEntity().getType() != EntityType.HORSE)
+		if (!(event.getEntity() instanceof AbstractHorse) && event.getEntity().getType() == EntityType.LLAMA || event.getEntity().getType() == EntityType.TRADER_LLAMA)
 		{
 			return;
 		}

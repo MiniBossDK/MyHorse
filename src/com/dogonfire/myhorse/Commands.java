@@ -1,27 +1,23 @@
 package com.dogonfire.myhorse;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.milkbowl.vault.economy.Economy;
-import net.minecraft.server.v1_10_R1.EntityLiving;
-import net.minecraft.server.v1_10_R1.NBTTagCompound;
 
 import org.apache.commons.lang.StringUtils;
-
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Server;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_10_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
-import org.bukkit.entity.Horse.Variant;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Llama;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginDescriptionFile;
 
 public class Commands
 {
@@ -31,7 +27,7 @@ public class Commands
 	{
 		this.plugin = p;
 	}
-
+	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
 	{
 		Player player = null;
@@ -256,6 +252,74 @@ public class Commands
 		return true;
 	}
 
+	public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+		Player player = (Player) sender;
+		List<String> horses = new ArrayList<String>();
+		if((cmd.getName().equalsIgnoreCase("myhorse")) || (cmd.getName().equalsIgnoreCase("mh"))) {
+			if(args.length == 0) {
+				// TODO - return a list of commands here. Make a list of commands.
+			}
+			// TODO - Use a list of command names for nicer code
+			if (args[0].equalsIgnoreCase("kill"))
+			{
+				List<UUID> horsesOwned = this.plugin.getHorseManager().getHorsesForOwner(player.getUniqueId());
+				for(UUID horseId : horsesOwned) {
+					horses.add(this.plugin.getHorseManager().getNameForHorse(horseId));
+				}
+				return horses;
+			}
+			if (args[0].equalsIgnoreCase("sell"))
+			{
+				List<UUID> horsesOwned = this.plugin.getHorseManager().getHorsesForOwner(player.getUniqueId());
+				for(UUID horseId : horsesOwned) {
+					horses.add(this.plugin.getHorseManager().getNameForHorse(horseId));
+				}
+				return horses;
+			}
+			if (args[0].equalsIgnoreCase("lock"))
+			{
+				List<UUID> horsesOwned = this.plugin.getHorseManager().getHorsesForOwner(player.getUniqueId());
+				for(UUID horseId : horsesOwned) {
+					horses.add(this.plugin.getHorseManager().getNameForHorse(horseId));
+				}
+				return horses;
+			}
+			if ((args[0].equalsIgnoreCase("goto")) && (this.plugin.useHorseTeleportation))
+			{
+				List<UUID> horsesOwned = this.plugin.getHorseManager().getHorsesForOwner(player.getUniqueId());
+				for(UUID horseId : horsesOwned) {
+					horses.add(this.plugin.getHorseManager().getNameForHorse(horseId));
+				}
+				return horses;
+			}
+			if (args[0].equalsIgnoreCase("select"))
+			{
+				List<UUID> horsesOwned = this.plugin.getHorseManager().getHorsesForOwner(player.getUniqueId());
+				for(UUID horseId : horsesOwned) {
+					horses.add(this.plugin.getHorseManager().getNameForHorse(horseId));
+				}
+				return horses;
+			}
+			if (args[0].equalsIgnoreCase("kill"))
+			{
+				List<UUID> horsesOwned = this.plugin.getHorseManager().getHorsesForOwner(player.getUniqueId());
+				for(UUID horseId : horsesOwned) {
+					horses.add(this.plugin.getHorseManager().getNameForHorse(horseId));
+				}
+				return horses;
+			}
+			if (args[0].equalsIgnoreCase("sell"))
+			{
+				List<UUID> horsesOwned = this.plugin.getHorseManager().getHorsesForOwner(player.getUniqueId());
+				for(UUID horseId : horsesOwned) {
+					horses.add(this.plugin.getHorseManager().getNameForHorse(horseId));
+				}
+				return horses;
+			}
+		}
+		return null;
+	}
+
 	private boolean CommandMyHorse(CommandSender sender)
 	{
 		sender.sendMessage(ChatColor.YELLOW + "------------------ " + this.plugin.getDescription().getFullName() + " ------------------");
@@ -378,30 +442,40 @@ public class Commands
 		if ((args.length < 1) || (args.length > 3))
 		{
 			player.sendMessage(ChatColor.RED + "Usage: /myhorse spawn");
-			player.sendMessage(ChatColor.RED + "Usage: /myhorse spawn <mule|skeleton|normal|undead>");
-			player.sendMessage(ChatColor.RED + "Usage: /myhorse spawn <mule|skeleton|normal|undead> baby");
+			player.sendMessage(ChatColor.RED + "Usage: /myhorse spawn <mule|donkey|skeleton|normal|undead>");
+			player.sendMessage(ChatColor.RED + "Usage: /myhorse spawn <mule|donkey|skeleton|normal|undead> baby");
 			return false;
 		}
-		Horse.Variant variant = Horse.Variant.HORSE;
+		
+		EntityType variant = null;
+		
 		if (args.length > 1)
 		{
 			if (args[1].equalsIgnoreCase("skeleton"))
 			{
-				variant = Horse.Variant.SKELETON_HORSE;
+				variant = EntityType.SKELETON_HORSE;
 			}
 			else if (args[1].equalsIgnoreCase("mule"))
 			{
-				variant = Horse.Variant.MULE;
+				variant = EntityType.MULE;
+			}
+			else if (args[1].equalsIgnoreCase("donkey"))
+			{
+				variant = EntityType.DONKEY;
 			}
 			else if (args[1].equalsIgnoreCase("undead"))
 			{
-				variant = Horse.Variant.UNDEAD_HORSE;
+				variant = EntityType.ZOMBIE_HORSE;
 			}
 			else if (args[1].equalsIgnoreCase("normal"))
 			{
-				variant = Horse.Variant.HORSE;
+				variant = EntityType.HORSE;
+			} else {
+				player.sendMessage(ChatColor.RED + "Invalid type of horse");
+				return false;
 			}
 		}
+		
 		this.plugin.getLanguageManager().setName(variant.name());
 
 		boolean baby = false;
@@ -421,9 +495,8 @@ public class Commands
 				this.plugin.getLanguageManager().setName("baby " + variant.name());
 			}
 		}
-		Location spawnLocation = player.getLocation();
 
-		this.plugin.getHorseManager().newHorse(spawnLocation, variant, baby);
+		this.plugin.getHorseManager().newHorse(player, variant, baby);
 
 		player.sendMessage(this.plugin.getLanguageManager().getLanguageString(LanguageManager.LANGUAGESTRING.SpawnedHorse, ChatColor.GREEN));
 
@@ -463,7 +536,7 @@ public class Commands
 			player.sendMessage(this.plugin.getLanguageManager().getLanguageString(LanguageManager.LANGUAGESTRING.NoHorseSelected, ChatColor.DARK_RED));
 			return false;
 		}
-		LivingEntity horse = this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
+		AbstractHorse horse = (AbstractHorse) this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
 		if (horse == null)
 		{
 			return false;
@@ -552,7 +625,8 @@ public class Commands
 			return false;
 		}
 		
-		LivingEntity horse = this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
+		// TODO - Fix using Fido's chunkloading method from https://github.com/DoggyCraftDK/MyDog/tree/master/src/dk/fido2603/mydog
+		AbstractHorse horse = (AbstractHorse) this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
 		
 		if (horse == null)
 		{
@@ -600,7 +674,7 @@ public class Commands
 		{
 			return false;
 		}
-		Horse horse = this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
+		AbstractHorse horse = (AbstractHorse) this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
 		if (horse != null)
 		{
 			horse.setTamed(false);
@@ -689,7 +763,7 @@ public class Commands
 		{
 			return false;
 		}
-		LivingEntity horse = this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
+		Entity horse = this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
 		if (horse != null)
 		{
 			horse.remove();
@@ -741,7 +815,7 @@ public class Commands
 			player.sendMessage(this.plugin.getLanguageManager().getLanguageString(LanguageManager.LANGUAGESTRING.PlayerCannotHaveMoreHorses, ChatColor.DARK_RED));
 			return false;
 		}
-		Horse horse = this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
+		AbstractHorse horse = (AbstractHorse) this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
 		String horseName = this.plugin.getHorseManager().getNameForHorse(horseIdentifier);
 		if (horse == null)
 		{
@@ -943,47 +1017,33 @@ public class Commands
 		{
 			return false;
 		}
-		Horse horse = this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
+		AbstractHorse horse = (AbstractHorse) this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
 		if (horse == null)
 		{
 			return false;
 		}
 		String horseName = this.plugin.getHorseManager().getNameForHorse(horseIdentifier);
-
-		EntityLiving el = ((CraftLivingEntity) horse).getHandle();
-
-		NBTTagCompound tag = new NBTTagCompound();
-
-		int typeId = tag.getInt("Type");
-
-		String typeName = null;
-		switch (typeId)
+		if (horseName == null)
 		{
-			case 0:
-				typeName = "Horse";
-				break;
-			case 1:
-				typeName = "Donkey";
-				break;
-			case 2:
-				typeName = "Mule";
-				break;
-			case 3:
-				typeName = "Zombie";
-				break;
-			case 4:
-				typeName = "Skeleton";
+			return false;
 		}
+		// TODO - Make a work around
+		String typeName = horse.getType().name();
 		
+		
+		AbstractHorse horseVar = (AbstractHorse) horse;
 		player.sendMessage(ChatColor.YELLOW + "------------------ " + horseName + " ------------------");
 
 		player.sendMessage(ChatColor.AQUA + "Type: " + ChatColor.WHITE + typeName);
-		player.sendMessage(ChatColor.AQUA + "Variant: " + ChatColor.WHITE + tag.getInt("Variant"));
-		player.sendMessage(ChatColor.AQUA + "Age: " + ChatColor.WHITE + horse.getAge());
-		player.sendMessage(ChatColor.AQUA + "Owner: " + ChatColor.WHITE + tag.getString("OwnerName"));
+		if(typeName == "Horse")	{
+			Horse h = (Horse) horse;
+			player.sendMessage(ChatColor.AQUA + "Variant: " + ChatColor.WHITE + h.getStyle().name());
+		}
+		player.sendMessage(ChatColor.AQUA + "Age: " + ChatColor.WHITE + horseVar.getAge());
+		player.sendMessage(ChatColor.AQUA + "Owner: " + ChatColor.WHITE + horseVar.getOwner());
 
-		player.sendMessage(ChatColor.AQUA + "Max Health: " + ChatColor.WHITE + horse.getMaxHealth());
-		player.sendMessage(ChatColor.AQUA + "Jump Strength: " + ChatColor.WHITE + horse.getJumpStrength());
+		player.sendMessage(ChatColor.AQUA + "Max Health: " + ChatColor.WHITE + horseVar.getAttribute(Attribute.GENERIC_MAX_HEALTH));
+		player.sendMessage(ChatColor.AQUA + "Jump Strength: " + ChatColor.WHITE + horseVar.getJumpStrength());
 
 		List<UUID> friends = this.plugin.getHorseManager().getHorseFriends(horseIdentifier);
 		if (friends.size() > 0)
@@ -995,7 +1055,7 @@ public class Commands
 			}
 		}
 		
-		((CraftPlayer) player).getHandle().world.broadcastEntityEffect(el, (byte) 7);
+		//((CraftPlayer) player).getHandle().world.broadcastEntityEffect(el, (byte) 7); // TODO - Delete this?
 
 		this.plugin.getLanguageManager().setName(horseName);
 
@@ -1029,7 +1089,7 @@ public class Commands
 
 		if (args.length == 1)
 		{
-			Horse horse = this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
+			AbstractHorse horse = (AbstractHorse) this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
 			if (horse == null)
 			{
 				horse = this.plugin.getHorseManager().spawnHorse(horseIdentifier, this.plugin.getHorseManager().getHorseLastSelectionPosition(horseIdentifier));
@@ -1065,7 +1125,7 @@ public class Commands
 		}
 		String horseName = this.plugin.getHorseManager().getNameForHorse(horseIdentifier);
 
-		Horse horse = this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
+		AbstractHorse horse = (AbstractHorse) this.plugin.getHorseManager().getHorseEntity(horseIdentifier);
 
 		horse.setCustomName(ChatColor.GOLD + horseName + ChatColor.RED + " " + this.plugin.getEconomy().format(sellingPrice));
 
@@ -1102,8 +1162,10 @@ public class Commands
 		}
 		
 		String friendName = args[1];
-				
-		UUID friendId = plugin.getServer().getOfflinePlayer(friendName).getUniqueId();
+		UUID friendId = null;
+		for(OfflinePlayer playerName : Bukkit.getOfflinePlayers()) {
+			if(playerName.getName() == friendName) friendId = playerName.getUniqueId();
+		}
 		
 		if(friendId==null)
 		{
@@ -1151,7 +1213,7 @@ public class Commands
 		
 		String friendName = args[1];
 		
-		UUID friendId = plugin.getServer().getOfflinePlayer(friendName).getUniqueId();
+		UUID friendId = plugin.getServer().getPlayer(friendName).getUniqueId();
 		
 		if(friendId==null)
 		{
@@ -1188,12 +1250,15 @@ public class Commands
 		{
 			return false;
 		}
-		if (player.getVehicle().getType() != EntityType.HORSE)
+		
+		if (!(player.getVehicle() instanceof AbstractHorse) && player.getVehicle().getType() == EntityType.LLAMA || player.getVehicle().getType() == EntityType.TRADER_LLAMA)
 		{
 			return false;
 		}
-		Horse horse = (Horse) player.getVehicle();
-
+		AbstractHorse horse = (AbstractHorse) player.getVehicle();
+		
+		if(horse instanceof Llama) return false;
+		
 		UUID horseIdentifier = horse.getUniqueId();
 		if (horseIdentifier == null)
 		{

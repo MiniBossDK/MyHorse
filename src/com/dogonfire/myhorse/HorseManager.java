@@ -5,25 +5,29 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
-import org.bukkit.entity.Horse.Color;
-import org.bukkit.entity.Horse.Style;
-import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 public class HorseManager
 {
@@ -31,7 +35,8 @@ public class HorseManager
 	private FileConfiguration	horsesConfig		= null;
 	private File				horsesConfigFile	= null;
 	private Random				random				= new Random();
-
+	
+	
 	HorseManager(MyHorse plugin)
 	{
 		this.plugin = plugin;
@@ -68,18 +73,16 @@ public class HorseManager
 		}
 	}
 
-	public void newHorse(Location spawnLocation, Horse.Variant horseVariant, boolean baby)
-	{
-		Horse horse = (Horse) spawnLocation.getWorld().spawnEntity(spawnLocation, EntityType.HORSE);
-		if (baby)
-		{
-			horse.setBaby();
+	public void newHorse(Player player, EntityType horseVariant, boolean baby)
+	{		
+		AbstractHorse horse;
+		
+		if(horseVariant != EntityType.LLAMA || horseVariant != EntityType.TRADER_LLAMA) {
+			horse = (AbstractHorse) player.getLocation().getWorld().spawnEntity(player.getLocation(), horseVariant);
+			if(baby) ((Ageable) horse).setBaby();
+		} else {
+			player.sendMessage(ChatColor.YELLOW + horseVariant.name() + " is not a valid horsetype");
 		}
-		else
-		{
-			horse.setAdult();
-		}
-		horse.setVariant(horseVariant);
 	}
 
 	public Boolean ownedHorseWithName(String ownerName, String name)
@@ -319,17 +322,11 @@ public class HorseManager
 			style = Horse.Style.values()[this.random.nextInt(Horse.Style.values().length)];
 		}
 
-		Horse.Variant variant;
+		Horse.Color variant;
 
-		try
-		{
-			String variantName = this.horsesConfig.getString(horseIdentifier.toString() + ".Variant");
-			variant = Horse.Variant.valueOf(variantName);
-		}
-		catch (Exception ex)
-		{
-			variant = Horse.Variant.HORSE;
-		}
+
+		String variantName = this.horsesConfig.getString(horseIdentifier.toString() + ".Variant");
+		variant = Horse.Color.valueOf(variantName);
 
 		Horse.Color color;
 
@@ -371,12 +368,11 @@ public class HorseManager
 
 		horse.setTamed(true);
 		horse.setStyle(style);
-		horse.setVariant(variant);
 		horse.setColor(color);
 
 		if (maxHealth > 0.0D)
 		{
-			horse.setMaxHealth(maxHealth);
+			horse.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHealth);
 		}
 
 		if (jumpStrength > 0.0D)
@@ -404,21 +400,61 @@ public class HorseManager
 		return horse;
 	}
 
-	public Horse getHorseEntity(UUID horseIdentifier)
+	public Entity getHorseEntity(UUID horseIdentifier)
 	{
-		for (World world : this.plugin.getServer().getWorlds())
+		// TODO - Use Fido's method from MyDog to make this work properly
+		Entity horse = null;
+		for(World world : plugin.getServer().getWorlds()) 
 		{
 			for (Entity otherEntity : world.getEntities())
 			{
-				if (otherEntity.getType() == EntityType.HORSE && otherEntity.getUniqueId().equals(horseIdentifier))
+				if(otherEntity instanceof AbstractHorse)
 				{
-					return (Horse) otherEntity;
+					if(otherEntity.getType() != EntityType.TRADER_LLAMA && otherEntity.getType() != EntityType.LLAMA) 
+					{
+						if (otherEntity.getUniqueId().equals(horseIdentifier))
+						{
+							return otherEntity;
+						}
+					}
 				}
 			}
 		}
+		Location loc = getHorseLastSelectionPosition(horseIdentifier);
+		if(horse == null) 
+		{
+			loc.getChunk().setForceLoaded(true);
+			System.out.println("Horse in a not loaded chunk");
+			if(loc.getChunk().load()) 
+			{
+				System.out.println("Chunk loaded");
+				for (Entity otherEntity : loc.getChunk().getEntities())
+				{
+					if(otherEntity instanceof AbstractHorse)
+					{
+						if(otherEntity.getType() != EntityType.TRADER_LLAMA && otherEntity.getType() != EntityType.LLAMA) 
+						{
+							if (otherEntity.getUniqueId().equals(horseIdentifier))
+							{
+								loc.getChunk().setForceLoaded(false);
+								if(loc.getChunk().unload()) System.out.println("Chunk unloaded");
+								return otherEntity;
+							}
+						}
+					}
+				}
+				loc.getChunk().setForceLoaded(false);
+				if(loc.getChunk().unload()) System.out.println("Chunk unloaded");
+			} 
+			else 
+			{
+				System.out.println("Chunk could not be loaded");
+				return null;
+			}
+	}
 		return null;
 	}
-
+	
 	public UUID getHorseByName(String horseName)
 	{
 		for (String horseIdentifierString : this.horsesConfig.getKeys(false))
@@ -431,7 +467,7 @@ public class HorseManager
 		}
 		return null;
 	}
-
+	
 	public UUID getOwnerForHorse(UUID horseIdentifier)
 	{
 		String ownerString = this.horsesConfig.getString(horseIdentifier.toString() + ".Owner");
@@ -448,7 +484,31 @@ public class HorseManager
 		
 		return ownerId;
 	}
-
+	
+	public void createCustomInventoryForHorse(UUID horseIdentifier) {
+		// TODO - Create a custom inventory for the horse
+		Inventory inv = Bukkit.createInventory(null, 32, plugin.getHorseManager().getNameForHorse(horseIdentifier) + "'s Inventory");
+		isHorseCarryingChest(horseIdentifier);
+		this.horsesConfig.set(horseIdentifier + ".IsCarryingChest", true);
+	}
+	
+	public void removeCustomInventoryForHorse(UUID horseIdentifier) 
+	{
+		
+	}
+	
+	public HashMap<Integer, Material> getHorseCustomInventory(UUID horseIdentifier) 
+	{
+		// TODO - Save horse custom inventory in config
+		HashMap<Integer, Material> horseInv = new HashMap<Integer, Material>();
+		return  horseInv;
+	}
+		
+	public boolean isHorseCarryingChest(UUID horseIdentifier) 
+	{
+		return this.horsesConfig.getBoolean(horseIdentifier + "isCarryingChest");
+	}
+	
 	public String getNameForHorse(UUID horseIdentifier)
 	{
 		return this.horsesConfig.getString(horseIdentifier.toString() + ".Name");
@@ -469,11 +529,16 @@ public class HorseManager
 		if (ownerId == null)
 		{
 			this.horsesConfig.set(horseIdentifier.toString(), null);
-
-			Horse horse = getHorseEntity(horseIdentifier);
+			
+			AbstractHorse horse = (AbstractHorse) getHorseEntity(horseIdentifier);
+			
 			if (horse != null)
 			{
-				horse.setCarryingChest(false);
+				if(horse instanceof ChestedHorse) {
+					ChestedHorse chestedHorse = (ChestedHorse) getHorseEntity(horseIdentifier);
+					chestedHorse.setCarryingChest(false);
+					chestedHorse.setCarryingChest(false);
+				}
 				horse.setCustomName(null);
 				horse.setCustomNameVisible(false);
 				horse.setOwner(null);
@@ -482,7 +547,7 @@ public class HorseManager
 		}
 		else
 		{
-			Horse horse = getHorseEntity(horseIdentifier);
+			AbstractHorse horse = (AbstractHorse) getHorseEntity(horseIdentifier);
 			if (horse != null)
 			{
 				OfflinePlayer player = this.plugin.getServer().getOfflinePlayer(ownerId);
@@ -495,17 +560,17 @@ public class HorseManager
 		}
 	}
 
-	public void setHorseStatistics(UUID horseIdentifier, Horse.Style style, double maxHealth, double jumpStrength, Horse.Variant variant)
+	public void setHorseStatistics(UUID horseIdentifier, Horse.Style style, double maxHealth, double jumpStrength, Horse.Color color)
 	{
 		this.horsesConfig.set(horseIdentifier.toString() + ".Style", style.name());
-		this.horsesConfig.set(horseIdentifier.toString() + ".Variant", variant.name());
+		this.horsesConfig.set(horseIdentifier.toString() + ".Variant", color.name());
 		this.horsesConfig.set(horseIdentifier.toString() + ".MaxHealth", Double.valueOf(maxHealth));
 		this.horsesConfig.set(horseIdentifier.toString() + ".JumpStrength", Double.valueOf(jumpStrength));
 	}
 
 	public List<UUID> getAllHorses()
 	{
-		List<UUID> horseList = new ArrayList();
+		List<UUID> horseList = new ArrayList<>();
 		for (String horseIdentifierString : this.horsesConfig.getKeys(false))
 		{
 			UUID horseIdentifier = null;
@@ -606,13 +671,15 @@ public class HorseManager
 
 	public UUID newHorse(String playerName, LivingEntity entity)
 	{
-		Horse horse = (Horse) entity;
+		AbstractHorse horse = (AbstractHorse) entity;
 
 		this.horsesConfig.set(horse.getUniqueId() + ".Name", "Horsy");
-		this.horsesConfig.set(horse.getUniqueId() + ".Color", horse.getColor().name());
-		this.horsesConfig.set(horse.getUniqueId() + ".Variant", horse.getVariant().name());
-		this.horsesConfig.set(horse.getUniqueId() + ".Style", horse.getStyle().name());
-		this.horsesConfig.set(horse.getUniqueId() + ".MaxHealth", Double.valueOf(horse.getMaxHealth()));
+		if(horse instanceof Horse) {
+			Horse horse1 = (Horse) entity;
+			this.horsesConfig.set(horse.getUniqueId() + ".Color", horse1.getColor().name());
+			this.horsesConfig.set(horse.getUniqueId() + ".Style", horse1.getStyle().name());
+		}
+		this.horsesConfig.set(horse.getUniqueId() + ".MaxHealth", horse.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		this.horsesConfig.set(horse.getUniqueId() + ".JumpStrength", Double.valueOf(horse.getJumpStrength()));
 
 		return horse.getUniqueId();

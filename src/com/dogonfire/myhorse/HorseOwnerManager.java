@@ -131,7 +131,7 @@ public class HorseOwnerManager
     UUID playerId;
     Date thisDate = new Date();
     
-    List<UUID> ownerList = new ArrayList();
+    List<UUID> ownerList = new ArrayList<>();
     for (String ownerId : this.ownersConfig.getKeys(false))
     {
       String loginString = this.ownersConfig.getString(ownerId.toString() + ".LastLogin");

@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -15,11 +17,14 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MyHorse extends JavaPlugin
 {
+	private static MyHorse						plugin;
+	public boolean								vaultEnabled			= false;
 	private LanguageManager						languageManager			= null;
 	private PermissionsManager					permissionsManager		= null;
 	private StableManager						stableManager			= null;
@@ -43,7 +48,7 @@ public class MyHorse extends JavaPlugin
 	private Economy								economy					= null;
 	public int									maxHorsesPrPlayer		= 3;
 
-	public static final String					NMS						= "v1_10_R1";
+	public static final String					NMS						= "v1_16_R1";
 	
 	public boolean isCombatibleServer()
 	{
@@ -195,7 +200,7 @@ public class MyHorse extends JavaPlugin
 				log("WARNING: No worlds are set in config file. MyHorse is DISABLED on this server!");
 			}
 		}
-
+		
 		for (String groupName : getPermissionsManager().getGroups())
 		{
 			if (this.config.getString("Groups." + groupName) == null)
@@ -204,6 +209,7 @@ public class MyHorse extends JavaPlugin
 				this.config.set("Groups." + groupName + ".MaximumHorses", Integer.valueOf(5));
 			}
 		}
+
 	}
 
 	public ChatColor getHorseNameColorForPlayer(UUID playerId)
@@ -267,14 +273,13 @@ public class MyHorse extends JavaPlugin
 			this.setEnabled(false);
 			return;
 		}
-				
+		plugin = this;
 		this.languageManager = new LanguageManager(this);
 		this.permissionsManager = new PermissionsManager(this);
 		this.horseManager = new HorseManager(this);
 		this.ownerManager = new HorseOwnerManager(this);
 		this.stableManager = new StableManager(this);
 		this.commands = new Commands(this);
-
 		this.permissionsManager.load();
 
 		loadSettings();
@@ -284,25 +289,7 @@ public class MyHorse extends JavaPlugin
 		this.stableManager.load();
 		this.horseManager.load();
 		this.ownerManager.load();
-		if (getServer().getPluginManager().getPlugin("Vault") != null)
-		{
-			RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
-			if (economyProvider != null)
-			{
-				this.economy = ((Economy) economyProvider.getProvider());
-				log("Vault found, buying and selling is enabled.");
-			}
-			else
-			{
-				log("Vault not found. Buying and selling disabled.");
-				this.economyEnabled = false;
-			}
-		}
-		else
-		{
-			log("Vault not found. Buying and selling disabled.");
-			this.economyEnabled = false;
-		}
+		
 		getServer().getPluginManager().registerEvents(new EventListener(this), this);
 
 		Runnable horseManagerSavetask = new Runnable()
@@ -408,8 +395,30 @@ public class MyHorse extends JavaPlugin
 				log("Failed to submit metrics :-(");
 			}
 		}
-	}
 
+		PluginManager pm = getServer().getPluginManager();
+
+		// Check for Vault
+		if (pm.getPlugin("Vault") != null && pm.getPlugin("Vault").isEnabled())
+		{
+			log("Vault detected.");
+
+			RegisteredServiceProvider<Permission> permissionProvider = this.getServer().getServicesManager().getRegistration(Permission.class);
+			RegisteredServiceProvider<Chat> chatProvider = this.getServer().getServicesManager().getRegistration(Chat.class);
+			if (permissionProvider == null || chatProvider == null)
+			{
+				plugin.log("A permission provider or a chat provider was not found! Will not enable the vault integration!");
+			}
+			else
+			{
+				this.vaultEnabled = true;
+			}
+		}
+		else
+		{
+			log("Vault not found.");
+		}
+	}
 	public void onDisable()
 	{
 		if(!this.isCombatibleServer())
@@ -428,6 +437,10 @@ public class MyHorse extends JavaPlugin
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
 	{
 		return this.commands.onCommand(sender, cmd, label, args);
+	}
+	
+	public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+		return commands.onTabComplete(sender, cmd, label, args);
 	}
 
 	public boolean isAllowedInWorld(World world)
