@@ -1,0 +1,157 @@
+Version:
+  Name : English
+  Author: DogOnFire
+  Version: 0.6
+ComeHere:
+- Hey $Name, get over here!
+- Come over here, $Name!
+- Over here, $Name!
+- Come here, $Name! Good boy!
+- Get over here, $Name!
+HorsesWasPurged:
+- $Amount horses was purged!
+YouPutAChestOnHorse:
+- You put a chest on $Name!
+- $Name now carries a chest!
+HorseHasNoChest:
+- $Name doesn't carry a chest
+ChestHasBeenRemoved:
+- Chest has been removed successfully from $Name!
+ChestHasBeenRemovedFailure:
+- Chest couldn't be removed from $Name!
+NoHorseWithSuchName:
+- You have no horse with the name '$Name'!
+- Who is '$Name'?
+ChestedHorseItemsMoved:
+- Your items has been moved into a new custom inventory! Interact with your horse while you are sneaking to see your items.
+NotAHorse:
+- That's not a horse, silly!
+NoHorseWithSuchID:
+- You have no horse with the ID '$Name'!
+YouCancelledHorseForSale:
+- $Name is no longer for sale!
+CouldNotTeleportYourHorse:
+- Cannot teleport your horse to here!
+YouCannotClaimThisHorse:
+- You cannot claim this horse. It belongs to $PlayerName!
+- This horse belongs to $PlayerName. It is not for claiming!
+NotRidingAHorse:
+- You are not riding a horse! You can also access the inventory by interacting with horse while you are sneaking.
+NoPriceOnHorse:
+- $Name is currently not for sale! Use $Amount to sell the horse.
+YouDoNotHaveEnoughMoneyToBuyHorse:
+- You do not have $Amount to buy $Name! 
+- $Name costs $Amount, which you do not have! 
+- Do you HAVE $Amount? No.
+- How about getting $Amount first? 
+YouMountedOwnedHorse:
+- You mounted $PlayerName's horse!
+- $Name is $PlayerName's horse!
+PlayerCannotHaveMoreHorses:
+- $PlayerName cannot own more horses!
+YouCannotHaveMoreHorses:
+- You cannot own more horses. You are only allowed to own $Amount horses!
+NotHorseFriend:
+- $PlayerName is not on a friend for your horse!
+AlreadyHorseFriend:
+- $PlayerName is already a friend for your horse!
+HasNeverPlayedOnTheServer:
+- $PlayerName has never played on the server!
+YouAddedFriendToHorse:
+- You added $PlayerName as a friend to your horse!
+YouRemovedFriendToHorse:
+- You removed $PlayerName as a friend to your horse!
+BabyTimeBeforeAdult:
+- $Name is going to be an adult in $Amount!
+AlreadyOwnThatHorse:
+- You already own that horse!
+InvalidHorseName:
+- Come on, that is not a valid name for a horse!
+InfoCancelHorseSale:
+- You can cancel your sale by using $Amount with no price!
+YourHorseHasGrownUp:
+- Hurray!! $Name has grown up!
+YouBoughtHorse:
+- You bought $Name from $PlayerName for $Amount!
+PlayerBoughtYourHorse:
+- $Name was bought by $PlayerName for $Amount!
+AreYouSureYouWantToBuyHorse:
+- Are you sure you want to buy $Name for $Amount? Click again to confirm!
+PutChestOnHorseInfo:
+- You can put a chest on any of your horses by interacting with the horse while having a chest in your main hand while your sneaking. 
+DoYouWishToClaim:
+- This horse does not have a owner. Use $Amount to claim it!
+YouClaimedAHorse:
+- You claimed this Horse!
+YouSetHorseForSale:
+- You set $Name for sale for $Amount!
+CannotOpenLockedHorse:
+- You cannot use that horse. It belongs to $Name!
+- Hands off! It belongs to $Name!
+- Hey!! Don't mess around with $Name's horse!
+YourHorseIsFarAway:
+- $Name is really far away. Try again in a moment!
+CannotLeashLockedHorse:
+- You cannot leash that horse. It belongs to $Name!
+- Don't go around leashing others horses!
+UseGotoCommand:
+- Use $Amount to goto any of these horses!
+YourOwnedHorsesList:
+- ---------- You own $Amount horses ----------
+YouSetYourHorseFree:
+- $Name is now a free horse!
+- $Name, you are now free!!
+YouAreNewOwnerOfHorse:
+- You are the new owner of $Name!
+YouSetOwnerForHorse:
+- You set $PlayerName as the new owner for $Name!
+- $Name now has a new owner!
+ThatPlayerIsNotOnline:
+- There is no player with the name $Name online!
+YouKilledHorse:
+- You killed $Name!
+- $Name is no more...
+- Goodbye, $Name!
+YouSelectedHorse:
+- You selected $Name!
+CannotUseLockedHorse:
+- You cannot use that horse. It belongs to $Name!
+- Hey!! Don't steal $Name's horse!
+HorseLocked:
+- You locked $Name. Only you can ride it!
+HorseUnlocked:
+- You unlocked $Name. Everyone can ride it!
+YouTamedAHorse:
+- You tamed a horse!
+CommandDisabled:
+- $Amount is disabled.
+CannotUseNameTags:
+- Cannot use nametags to change the name. Use $Amount to change the of the horse instead.
+UseCommandToNameYourHorse:
+- Use $Amount to give your horse a name.
+UseCommandToUnlockYourHorse:
+- Use $Amount to unlock your horse so others can ride it.
+UseCommandToSellYourHorse:
+- Use $Amount to set your horse for sale.
+YourHorseDied:
+- Your horse '$Name' died because of $Amount!
+- Oh noes! Your horse '$Name' just died because of $Amount!
+- Awww... '$Name' is now a dead horse due to $Amount.
+NoHorseSelected:
+- No horse selected
+SpawnedHorse:
+- You spawned a $Name!
+SetHorseName:
+- You set your horse's name to '$Name'!
+NoMoreHorsesAllowed:
+- No more horses allowed!
+NoPermissionForCommand:
+- You do not have permission for that
+- No.
+- Just... No.
+- Nope.
+InvalidCommand:
+- Come on, you are not even trying!
+- That is not even a real command... 
+- Just... No.
+- Nope.

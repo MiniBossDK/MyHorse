@@ -1,0 +1,30 @@
+###################################################################################################
+# +---------------------------------------------------------------------------------------------+ #
+# |                                                                                             | #
+# |                                                __   __   __  __                             | #
+# |                                 |\/| \_/ |__| /  \ |__) (_  |_                              | #
+# |                                 |  |  |  |  | \__/ |  \ __) |__                             | #
+# |                                                                                             | #
+# |                                                                                             | #
+# |                                  |--   Made by DogOnFire  --|                               | #
+# |                                  |-- Refactor by hiphurra --|                               | #
+# |                                                                                             | #
+# |                                                                                             | #
+# |                                                                                             | #
+# |                                                                                             | #
+# +---------------------------------------------------------------------------------------------+ #
+###################################################################################################
+settings:
+  # Currently supported languages: en (english), da (danish)
+  language: en
+  allow_horse_teleportation: false
+  allow_chest_on_all_horses: false
+  always_show_horse_name: false
+  invulnerable_horses: false
+  goto_command_price: 0
+  setname_command_price: 0
+  allowed_worlds:
+    - world
+    - world_nether
+    - world_the_end
+  debug: false
