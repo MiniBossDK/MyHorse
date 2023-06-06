@@ -2,7 +2,6 @@ package com.hiphurra.myhorse.enums;
 
 public enum LanguageString {
 
-
     ComeHere(MessageType.INFO),
     YouPutAChestOnHorse(MessageType.INFO),
     HorseHasNoChest(MessageType.INFO),
@@ -48,8 +47,6 @@ public enum LanguageString {
     YouUntrustedPlayerOnAllHorses(MessageType.SUCCESS),
     NotHorseFriendOnAnyHorse(MessageType.SEVERE),
     HorseNotAllowedInWorld(MessageType.SEVERE);
-
-
 
     private final MessageType messageType;
 

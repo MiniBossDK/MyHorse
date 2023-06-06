@@ -1,20 +1,20 @@
 package com.hiphurra.myhorse.enums;
 
-public enum ConfigFile {
+public enum YamlFile {
 
     OWNERS("owners.yml"),
     HORSES("horses.yml"),
     STABLES("stables.yml");
 
 
-    private String fileName;
+    private final String fileName;
 
-    ConfigFile(String fileName) {
+    YamlFile(String fileName) {
         this.fileName = fileName;
     }
 
 
-    public String getName() {
+    public String getFileName() {
         return fileName;
     }
 }

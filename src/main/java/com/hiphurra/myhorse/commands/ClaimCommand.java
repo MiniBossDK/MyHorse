@@ -7,12 +7,10 @@ import com.hiphurra.myhorse.OwnerData;
 import com.hiphurra.myhorse.builders.Message;
 import com.hiphurra.myhorse.enums.LanguageString;
 import com.hiphurra.myhorse.enums.NameType;
-import com.hiphurra.myhorse.enums.PermissionNode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +40,7 @@ public class ClaimCommand implements Command {
                 message.sendMessage(player);
                 return true;
             }
-            if(horseData.getOwner().equals(player.getUniqueId())){
+            if(horseData.getOwner().equals(player.getUniqueId())) {
                 Message message = new Message.MessageBuilder(plugin, LanguageString.AlreadyOwnThatHorse)
                         .setHorseName(horseData.getName())
                         .build();
@@ -64,22 +62,6 @@ public class ClaimCommand implements Command {
     @Override
     public List<String> tab(MyHorse plugin, Player player, String... args) {
         return Collections.emptyList();
-    }
-
-    @Override
-    public @NotNull String getName() {
-        return "claim";
-    }
-
-    @Override
-    public @NotNull String getUsage() {
-        return "/mh claim";
-    }
-
-    @NotNull
-    @Override
-    public PermissionNode getPermission() {
-        return PermissionNode.CLAIM;
     }
 
 }

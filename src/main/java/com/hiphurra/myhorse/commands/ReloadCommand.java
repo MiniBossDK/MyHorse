@@ -15,7 +15,7 @@ public class ReloadCommand implements Command {
     @Override
     public boolean execute(MyHorse plugin, CommandSender sender, String... args) {
         try {
-            plugin.loadConfigFiles();
+            plugin.loadDataFiles();
             plugin.loadDefaultConfig();
             plugin.loadSettings();
             plugin.getLanguageManager().loadLanguageConfig();

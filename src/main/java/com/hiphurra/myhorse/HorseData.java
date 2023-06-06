@@ -1,20 +1,16 @@
 package com.hiphurra.myhorse;
 
-import com.hiphurra.myhorse.enums.ConfigFile;
-import com.hiphurra.myhorse.managers.ConfigManager;
+import com.hiphurra.myhorse.managers.YamlDataFile;
 import org.bukkit.Location;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class HorseData {
 
-    private final MyHorse plugin;
-    private final ConfigManager horseConfig;
-    private final UUID horseId;
+    private final YamlDataFile horseConfig;
 
     private static final String OWNER = ".owner";
     private static final String NAME = ".name";
@@ -24,54 +20,54 @@ public class HorseData {
     private static final String LOCATION = ".location";
     private static final String PRICE = ".price";
 
-    public HorseData(MyHorse plugin, UUID horseId) {
-        this.plugin = plugin;
-        this.horseConfig = plugin.getConfigManager(ConfigFile.HORSES);
-        this.horseId = horseId;
+    public HorseData() {
+        this.horseConfig = plugin.getConfigManager(com.hiphurra.myhorse.enums.YamlFile.HORSES);
     }
 
-    public void remove() {
-        setHorseConfig(getHorseId().toString(), null);
+    public static void remove(UUID horseId) {
+        setHorseConfig(horseId.toString(), null);
     }
 
-    public void setOwner(UUID playerId) {
-        setHorseConfig(getHorseId().toString() + OWNER, playerId.toString());
+    public static void setOwner(UUID horseId, UUID playerId) {
+        setHorseConfig(horseId.toString() + OWNER, playerId.toString());
     }
 
-    public UUID getOwner() {
-        String horseId = getHorseConfig().getString(getHorseId().toString() + OWNER);
-        if(horseId != null) return UUID.fromString(horseId);
+    public static UUID getOwner(UUID horseId) {
+        String ownerId = getHorseConfig().getString(horseId.toString() + OWNER);
+        if(ownerId != null) return UUID.fromString(ownerId);
         return null;
     }
 
-    public boolean hasOwner() {
-        return getHorseConfig().get(getHorseId().toString() + OWNER) != null;
+    public static boolean hasOwner(UUID horseId) {
+        return getHorseConfig().get(horseId.toString() + OWNER) != null;
     }
 
-    public void setName(String name) {
-        setHorseConfig(getHorseId().toString() + NAME, name);
+    public static void setName(UUID horseId, String name) {
+        setHorseConfig(horseId.toString() + NAME, name);
     }
 
-    public String getName() {
-        return getHorseConfig().getString(getHorseId().toString() + NAME);
+    public static String getName(UUID horseId) {
+        return getHorseConfig().getString(horseId.toString() + NAME);
     }
 
-    public void setTrustedPlayers(List<UUID> playerIds) {
-        setHorseConfig(getHorseId().toString() + FRIENDS, playerIds.stream().map(UUID::toString).collect(Collectors.toList()));
+    public static void setTrustedPlayers(UUID horseId, List<UUID> playerIds) {
+        setHorseConfig(horseId.toString() + FRIENDS, playerIds.stream().map(UUID::toString).collect(Collectors.toList()));
     }
 
-    public void addTrustedPlayer(UUID friendId) {
-        List<UUID> friendIds = Stream.concat(getTrustedPlayers().stream(), Stream.of(friendId)).collect(Collectors.toList());
-        setHorseConfig(getHorseId().toString() + FRIENDS, friendIds.stream().map(UUID::toString).collect(Collectors.toList()));
+    public static void addTrustedPlayer(UUID horseId, UUID friendId) {
+        List<UUID> friendIds = getTrustedPlayers(horseId);
+        friendIds.add(friendId);
+        setHorseConfig(horseId.toString() + FRIENDS, friendIds.stream().map(UUID::toString).collect(Collectors.toList()));
     }
 
-    public void removeTrustedPlayer(UUID friendId) {
-        List<UUID> friendIds = getTrustedPlayers().stream().filter(uuid -> !uuid.equals(friendId)).collect(Collectors.toList());
-        setHorseConfig(getHorseId().toString() + FRIENDS, friendIds.stream().map(UUID::toString).collect(Collectors.toList()));
+    public static void removeTrustedPlayer(UUID horseId, UUID friendId) {
+        List<UUID> friendIds = getTrustedPlayers(horseId);
+        friendIds.remove(friendId);
+        setHorseConfig(horseId.toString() + FRIENDS, friendIds.stream().map(UUID::toString).collect(Collectors.toList()));
     }
 
-    public List<UUID> getTrustedPlayers() {
-        List<String> friendsAsStrings = getHorseConfig().getStringList(getHorseId().toString() + FRIENDS);
+    public static List<UUID> getTrustedPlayers(UUID horseId) {
+        List<String> friendsAsStrings = getHorseConfig().getStringList(horseId.toString() + FRIENDS);
         List<UUID> friends = new ArrayList<>();
         for (String friend : friendsAsStrings) {
             friends.add(UUID.fromString(friend));
@@ -79,63 +75,60 @@ public class HorseData {
         return friends;
     }
 
-    public boolean hasTrustedPlayers() {
-        return !getHorseConfig().getStringList(getHorseId().toString() + FRIENDS).isEmpty();
+    public static boolean hasTrustedPlayers(UUID horseId) {
+        return !getHorseConfig().getStringList(horseId.toString() + FRIENDS).isEmpty();
     }
 
-    public boolean isTrusted(UUID playerId) {
-        return getTrustedPlayers().contains(playerId);
+    public static boolean isTrusted(UUID horseId, UUID playerId) {
+        return getTrustedPlayers(horseId).contains(playerId);
     }
 
-    public void setLocked(boolean locked) {
-        setHorseConfig(getHorseId().toString() + LOCKED, locked);
+    public static void setLocked(UUID horseId, boolean locked) {
+        setHorseConfig(horseId.toString() + LOCKED, locked);
     }
 
-    public boolean isLocked() {
-        return getHorseConfig().getBoolean(getHorseId().toString() + LOCKED);
+    public static boolean isLocked(UUID horseId) {
+        return getHorseConfig().getBoolean(horseId.toString() + LOCKED);
     }
 
-    public void setCurrentLocation(Location location) {
-        setHorseConfig(getHorseId().toString() + LOCATION, location);
+    public static void setCurrentLocation(UUID horseId, Location location) {
+        setHorseConfig(horseId.toString() + LOCATION, location);
     }
 
-    public Location getHorseLocation() {
-        return getHorseConfig().getLocation(getHorseId().toString() + LOCATION);
+    public static Location getHorseLocation(UUID horseId) {
+        return getHorseConfig().getLocation(horseId.toString() + LOCATION);
     }
 
-    public void setForSale(double price) {
-        setHorseConfig(getHorseId().toString() + PRICE, price);
+    public static void setForSale(UUID horseId, double price) {
+        setHorseConfig(horseId.toString() + PRICE, price);
     }
 
-    public void cancelSale() {
-        setHorseConfig(getHorseId().toString() + PRICE, null);
+    public static void cancelSale(UUID horseId) {
+        setHorseConfig(horseId.toString() + PRICE, null);
     }
 
-    public boolean isForSale() {
-        return getHorseConfig().get(getHorseId().toString() + PRICE) != null;
+    public static boolean isForSale(UUID horseId) {
+        return getHorseConfig().get(horseId.toString() + PRICE) != null;
     }
 
-    public double getPrice() {
-        return getHorseConfig().getDouble(getHorseId().toString() + PRICE);
+    public static double getPrice(UUID horseId) {
+        return getHorseConfig().getDouble(horseId.toString() + PRICE);
     }
 
-    public void setInventory(boolean flag) {
-        setHorseConfig(getHorseId().toString() + HAS_INVENTORY, flag);
+    // TODO - Evaluate if this method should exist
+    public static void setInventory(boolean flag, UUID horseId) {
+        setHorseConfig(horseId.toString() + HAS_INVENTORY, flag);
     }
 
-    public boolean hasInventory() {
-        return getHorseConfig().getBoolean(getHorseId().toString() + HAS_INVENTORY);
+    public static boolean hasInventory(UUID horseId) {
+        return getHorseConfig().getBoolean(horseId.toString() + HAS_INVENTORY);
     }
 
-    private ConfigManager getHorseConfig() {
+    private static YamlDataFile getHorseConfig() {
         return horseConfig;
     }
 
-    private void setHorseConfig(String path, Object value) {
+    private static void setHorseConfig(String path, Object value) {
         getHorseConfig().set(path, value);
-    }
-
-    public UUID getHorseId() {
-        return horseId;
     }
 }

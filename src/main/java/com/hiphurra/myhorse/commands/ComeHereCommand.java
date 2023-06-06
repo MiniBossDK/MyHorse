@@ -7,15 +7,12 @@ import com.hiphurra.myhorse.OwnerData;
 import com.hiphurra.myhorse.builders.Message;
 import com.hiphurra.myhorse.enums.LanguageString;
 import com.hiphurra.myhorse.enums.PermissionNode;
-import com.hiphurra.myhorse.enums.Setting;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;

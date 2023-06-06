@@ -1,26 +1,124 @@
 package com.hiphurra.myhorse;
 
-import java.util.UUID;
+import com.hiphurra.myhorse.customhorses.CustomAbstractHorse;
+import org.bukkit.Location;
+import org.jetbrains.annotations.Nullable;
 
-public class HorseOwner {
+import java.util.*;
 
-    private final UUID ownerId;
-    private boolean areaMode = false;
+public class HorseOwner implements AbstractHorseOwner {
 
-    public HorseOwner(UUID ownerId) {
+    private final UUID id;
+    private UUID selectedHorseId;
+    private final List<UUID> horses = new ArrayList<>();
+    private final List<SalesRecord> salesRecords = new ArrayList<>();
 
-        this.ownerId = ownerId;
+    public HorseOwner(UUID id) {
+        this.id = id;
     }
 
+    @Override
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public void selectHorse(@Nullable UUID horseId) {
+        this.selectedHorseId = horseId;
+    }
+
+    @Override
+    public @Nullable UUID getSelectedHorse() throws IllegalArgumentException {
+        return selectedHorseId;
+    }
+
+    @Override
+    public List<UUID> getAllTrustedPlayers() {
+        return null;
+    }
+
+    @Override
+    public void removeTrustOnAllHorses(UUID playerId) {
+        
+    }
+
+    @Override
+    public void addTrustOnAllHorses(UUID playerId) {
+
+    }
+
+    @Override
+    public void setLastLogin(Date lastLogin) {
+
+    }
+
+    @Override
+    public Date getLastLoginDate() {
+        return null;
+    }
+
+    @Override
+    public void addHorse(UUID horseId) {
+        horses.add(horseId);
+    }
+
+    @Override
+    public List<UUID> getHorses() {
+        return horses;
+    }
+
+    @Override
+    public boolean hasHorseFromId(UUID horseId) {
+        return horses.contains(horseId);
+    }
+
+    @Override
+    public boolean hasHorseFromName(String name) {
+        return false;
+    }
+
+    @Override
+    public List<SalesRecord> getSalesRecords() {
+        return salesRecords;
+    }
+
+    @Override
+    public void setSalesRecord(SalesRecord salesRecord) {
+
+    }
+
+    @Override
+    public void deleteSalesRecord(UUID recordId) {
+
+    }
+
+    @Override
+    public void setBuying(boolean buying) {
+
+    }
+
+    @Override
+    public boolean isBuying() {
+        return false;
+    }
+
+    @Override
     public void setAreaMode(boolean areaMode) {
-        this.areaMode = areaMode;
+
     }
 
-    public boolean isAreaMode() {
-        return areaMode;
+    @Override
+    public boolean isDefiningArea() {
+        return false;
     }
 
-    public UUID getOwnerId() {
-        return ownerId;
+    @Override
+    public void setStartLocation(Location location) {
+
+    }
+
+    @Override
+    public Location getStartLocation() {
+        return null;
     }
 }

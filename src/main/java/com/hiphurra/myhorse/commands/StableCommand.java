@@ -2,10 +2,10 @@ package com.hiphurra.myhorse.commands;
 
 import com.hiphurra.myhorse.MyHorse;
 import com.hiphurra.myhorse.OwnerData;
-import com.hiphurra.myhorse.stable.Region;
-import com.hiphurra.myhorse.stable.StableData;
 import com.hiphurra.myhorse.enums.PermissionNode;
+import com.hiphurra.myhorse.stable.Region;
 import com.hiphurra.myhorse.stable.Stable;
+import com.hiphurra.myhorse.stable.StableData;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -102,12 +102,13 @@ public class StableCommand implements Command {
         }
 
         public boolean execute() {
-            if(args.length > )
+            if(args.length > 3) {
+
+            }
 
 
             return true;
         }
-
 
         public static class StableSubSubCommand {
 

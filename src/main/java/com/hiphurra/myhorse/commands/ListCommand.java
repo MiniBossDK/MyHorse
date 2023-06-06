@@ -20,7 +20,7 @@ public class ListCommand implements Command {
 
     @Override
     public boolean execute(MyHorse plugin, CommandSender sender, String... args) {
-
+        // Use ChatPaginator from bukkit
         Player player = (Player) sender;
         OwnerData ownerData = new OwnerData(plugin, player.getUniqueId());
         List<String> horseNames = new ArrayList<>( ownerData.getHorses().values() );

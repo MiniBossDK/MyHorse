@@ -2,6 +2,7 @@ package com.hiphurra.myhorse.listeners;
 
 import com.hiphurra.myhorse.*;
 import com.hiphurra.myhorse.builders.Message;
+import com.hiphurra.myhorse.customhorses.CustomSkeletonHorse;
 import com.hiphurra.myhorse.enums.LanguageString;
 import com.hiphurra.myhorse.enums.NameType;
 import com.hiphurra.myhorse.enums.Setting;
@@ -9,7 +10,6 @@ import com.hiphurra.myhorse.events.HorseBoughtEvent;
 import com.hiphurra.myhorse.events.HorseDamageEvent;
 import com.hiphurra.myhorse.events.HorseInventoryOpenEvent;
 import com.hiphurra.myhorse.events.PlayerPutChestOnHorseEvent;
-import com.hiphurra.myhorse.horses.CustomSkeletonHorse;
 import com.hiphurra.myhorse.inventory.InventoryManager;
 import com.hiphurra.myhorse.stable.Stable;
 import net.minecraft.server.v1_16_R3.World;
@@ -19,13 +19,19 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.SkeletonHorse;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -329,7 +335,7 @@ public class MyHorseListener implements Listener {
 
     @EventHandler (priority = EventPriority.LOWEST)
     public void playerJoinEvent(PlayerJoinEvent event) {
-        plugin.getHorseOwners().add(new HorseOwner(event.getPlayer().getUniqueId()));
+        plugin.getHorseOwners().add(new AbstractHorseOwner(event.getPlayer().getUniqueId()));
         OwnerData ownerData = new OwnerData(plugin, event.getPlayer().getUniqueId());
         if(ownerData.getSalesRecords().isEmpty()) return;
         List<SalesRecord> salesRecords = ownerData.getSalesRecords().stream().filter(salesRecord -> !salesRecord.isSeen()).collect(Collectors.toList());

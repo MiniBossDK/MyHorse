@@ -4,7 +4,6 @@ import com.hiphurra.myhorse.HorseData;
 import com.hiphurra.myhorse.HorseUtils;
 import com.hiphurra.myhorse.MyHorse;
 import com.hiphurra.myhorse.OwnerData;
-import com.hiphurra.myhorse.builders.AbstractHorseBuilder;
 import com.hiphurra.myhorse.builders.Message;
 import com.hiphurra.myhorse.enums.LanguageString;
 import com.hiphurra.myhorse.enums.PermissionNode;
@@ -89,7 +88,7 @@ public class SetNameCommand implements Command {
 
         public boolean execute() {
             OwnerData ownerData = new OwnerData(plugin, player.getUniqueId());
-            if(ownerData.hasHorseName(args[1])) {
+            if(ownerData.hasHorseFromName(args[1])) {
                 Message message = new Message.MessageBuilder(plugin, LanguageString.AlreadyHasHorseWithThatName)
                         .setHorseName(args[1])
                         .build();
@@ -135,7 +134,7 @@ public class SetNameCommand implements Command {
 
         public boolean execute() {
             OwnerData ownerData = new OwnerData(plugin, player.getUniqueId());
-            if(ownerData.hasHorseName(args[1])) {
+            if(ownerData.hasHorseFromName(args[1])) {
                 Message message = new Message.MessageBuilder(plugin, LanguageString.AlreadyHasHorseWithThatName)
                         .setHorseName(args[1])
                         .build();

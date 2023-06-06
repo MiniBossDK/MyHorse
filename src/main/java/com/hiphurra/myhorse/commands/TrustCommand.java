@@ -1,6 +1,8 @@
 package com.hiphurra.myhorse.commands;
 
-import com.hiphurra.myhorse.*;
+import com.hiphurra.myhorse.HorseData;
+import com.hiphurra.myhorse.MyHorse;
+import com.hiphurra.myhorse.OwnerData;
 import com.hiphurra.myhorse.builders.Message;
 import com.hiphurra.myhorse.enums.LanguageString;
 import com.hiphurra.myhorse.enums.PermissionNode;

@@ -1,16 +1,17 @@
 package com.hiphurra.myhorse;
 
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.PaperCommandManager;
+import com.hiphurra.myhorse.commands.CommandContext;
 import com.hiphurra.myhorse.commands.CommandHandler;
-import com.hiphurra.myhorse.enums.ConfigFile;
 import com.hiphurra.myhorse.enums.NameType;
 import com.hiphurra.myhorse.enums.Setting;
+import com.hiphurra.myhorse.enums.YamlFile;
 import com.hiphurra.myhorse.listeners.*;
-import com.hiphurra.myhorse.managers.ConfigManager;
 import com.hiphurra.myhorse.managers.EconomyManager;
 import com.hiphurra.myhorse.managers.LanguageManager;
 import com.hiphurra.myhorse.managers.PermissionManager;
-import com.hiphurra.myhorse.stable.StableData;
-import com.hiphurra.myhorse.stable.Stable;
+import com.hiphurra.myhorse.managers.YamlDataFile;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -19,20 +20,25 @@ import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.reflections.Reflections;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class MyHorse extends JavaPlugin {
 
-    List<ConfigManager> configManagers = new ArrayList<>();
-    private final List<HorseOwner> horseOwners = new ArrayList<>();
+    Map<YamlFile, YamlDataFile> yamlDataFiles = new HashMap<>();
+    private final List<AbstractHorseOwner> horseOwners = new ArrayList<>();
     public final boolean defaultConfigExist = new File(getDataFolder(), "config.yml").exists();
     private final FileConfiguration defaultConfig = loadDefaultConfig();
     private final boolean isDebugging = getDefaultConfig().getBoolean("settings.debug", false);
@@ -41,17 +47,23 @@ public class MyHorse extends JavaPlugin {
     private PermissionManager permissionManager;
     private EconomyManager economyManager;
     private final Map<Setting, Object> settings = new HashMap<>();
+    public PaperCommandManager commandManager;
 
     @Override
     public void onEnable() {
 
+        ConfigurationSerialization.registerClass(SalesRecord.class);
+
         // Config
         loadDefaultConfig();
-        loadSettings();
-        initializeConfigFiles();
+        try {
+            loadSettings();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         try {
-            loadConfigFiles();
+            loadDataFiles();
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Something went wrong loading the config! Disables the plugin...");
         }
@@ -73,8 +85,13 @@ public class MyHorse extends JavaPlugin {
         }
         economyManager = new EconomyManager(this);
         permissionManager = new PermissionManager(this);
-
         // Commands
+        try {
+            registerCommands();
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
         try {
             PluginCommand myhorse = getCommand("myhorse");
             PluginCommand mh = getCommand("mh");
@@ -98,6 +115,50 @@ public class MyHorse extends JavaPlugin {
     @Override
     public void onDisable() {
 
+    }
+
+    public void registerCommands() throws InstantiationException, IllegalAccessException {
+        commandManager = new PaperCommandManager(this);
+
+        commandManager.registerDependency(YamlDataFile.class, "HorseDataFile", yamlDataFiles.get(YamlFile.HORSES));
+        commandManager.registerDependency(YamlDataFile.class, "StableDataFile", yamlDataFiles.get(YamlFile.STABLES));
+        commandManager.registerDependency(YamlDataFile.class, "HorseOwnerDataFile", yamlDataFiles.get(YamlFile.OWNERS));
+
+        commandManager.enableUnstableAPI("brigadier");
+
+        // 2: Setup some replacement values that may be used inside of the annotations dynamically.
+        commandManager.getCommandReplacements().addReplacements(
+                // key - value
+                "test", "foobar",
+                // key - demonstrate that % is ignored  - value
+                "%foo", "barbaz");
+        // Another replacement for piped values
+        commandManager.getCommandReplacements().addReplacement("testcmd", "test4|foobar|barbaz");
+
+        commandManager.getCommandContexts().registerContext(
+                /* The class of the object to resolve*/
+                CommandContext.class,
+                /* A resolver method - Placed the resolver in its own class for organizational purposes */
+                CommandContext.getContextResolver());
+
+        commandManager.setDefaultExceptionHandler((command, registeredCommand, sender, args, t) -> {
+            getLogger().warning("Error occurred while executing command " + command.getName());
+            return false; // mark as unhandeled, sender will see default message
+        });
+
+        commandManager.getCommandCompletions().registerAsyncCompletion("", c ->
+                Arrays.asList("1", "2")
+        );
+
+        Set<Class<?extends BaseCommand>> commands = new Reflections("com.hiphurra.myhorse.commands").getSubTypesOf(BaseCommand.class);
+        for(Class<?extends BaseCommand> command : commands) {
+            commandManager.registerCommand(command.newInstance());
+        }
+
+        commandManager.setDefaultExceptionHandler((command, registeredCommand, sender, args, t) -> {
+            getLogger().warning("Error occurred while executing command " + command.getName());
+            return false; // mark as unhandeled, sender will see default message
+        });
     }
 
     public EconomyManager getEconomyManager() {
@@ -125,15 +186,9 @@ public class MyHorse extends JavaPlugin {
         return getServer().getServicesManager().getRegistration(Economy.class);
     }
 
-    public void loadConfigFiles() throws IOException {
-        for (ConfigManager configManager : configManagers) {
-            configManager.loadConfig();
-        }
-    }
-
-    private void initializeConfigFiles() {
-        for (ConfigFile configFile : ConfigFile.values()) {
-            configManagers.add(new ConfigManager(configFile, this));
+    public void loadDataFiles() throws IOException {
+        for (YamlFile yamlFile : YamlFile.values()) {
+            yamlDataFiles.put(yamlFile, new YamlDataFile(new File(getDataFolder(), yamlFile.getFileName())));
         }
     }
 
@@ -146,19 +201,10 @@ public class MyHorse extends JavaPlugin {
         return defaultConfig;
     }
 
-    public ConfigManager getConfigManager(@NotNull ConfigFile configFile) {
-        for (ConfigManager configManager : configManagers) {
-            if(configManager.getConfigFile().equals(configFile)) {
-                return configManager;
-            }
-        }
-        return null;
-    }
-
     public LanguageManager getLanguageManager() {
         return languageManager;
     }
-    
+
     @SuppressWarnings("unchecked")
     public List<World> getAllowedWorlds() {
         Object setting = getSettings().get(Setting.ALLOWED_WORLDS);
@@ -179,16 +225,12 @@ public class MyHorse extends JavaPlugin {
         return allowedWorlds;
     }
 
-    public void loadSettings() {
+    public void loadSettings() throws IOException {
         for (Setting setting : Setting.values()) {
             String settingName = setting.name().toLowerCase();
             if(!getDefaultConfig().contains("settings." + settingName)) {
                 getDefaultConfig().set("settings." + settingName, setting.getDefault());
-                try {
-                    getDefaultConfig().save(new File(getDataFolder(), "config.yml"));
-                } catch (IOException exception) {
-                    logDebug(Level.SEVERE, "Couldn't not save the default config file!");
-                }
+                getDefaultConfig().save(new File(getDataFolder(), "config.yml"));
             }
             settings.put(setting, defaultConfig.get("settings." + settingName));
         }
@@ -198,11 +240,11 @@ public class MyHorse extends JavaPlugin {
         return settings;
     }
 
-    public List<HorseOwner> getHorseOwners() {
+    public List<AbstractHorseOwner> getHorseOwners() {
         return horseOwners;
     }
 
-    public String getRandomPlaceholderName(NameType type, List<String> ownedNames) {
+    public String getRandomPlaceholderName(NameType type, List<String> ownedNames) throws IOException {
         List<String> names;
         List<String> availableNames;
         if(type.equals(NameType.HORSE)) {
@@ -216,67 +258,29 @@ public class MyHorse extends JavaPlugin {
         return names.get((int) (Math.random() * names.size()));
     }
 
-    private List<String> getStablePlaceholderNames() {
-        List<String> names = new ArrayList<>();
-        try {
-            InputStreamReader inputStreamReader = (InputStreamReader) getTextResource("stable-names.txt");
-            if (inputStreamReader == null) return Collections.emptyList();
-            BufferedReader reader = new BufferedReader(inputStreamReader);
-            while (reader.readLine() != null) {
-                names.add(reader.readLine());
-            }
-            reader.close();
-            return names;
-        } catch (IOException exception) {
-            logDebug(Level.SEVERE, "Could not read stable placeholder names");
-        }
-        return Collections.emptyList();
+    private List<String> getStablePlaceholderNames() throws IOException {
+        return readFromTextResourceFile("stable-names.txt");
     }
 
-    private List<String> getHorsePlaceholderNames() {
-        List<String> names = new ArrayList<>();
-        try {
-            InputStreamReader inputStreamReader = (InputStreamReader) getTextResource("names.txt");
-            if (inputStreamReader == null) return Collections.emptyList();
-            BufferedReader reader = new BufferedReader(inputStreamReader);
-            while (reader.readLine() != null) {
-                names.add(reader.readLine());
-            }
-            reader.close();
-            return names;
-        } catch (IOException exception) {
-            logDebug(Level.SEVERE, "Could not read horse placeholder names");
+    private List<String> getHorsePlaceholderNames() throws IOException {
+        return readFromTextResourceFile("horse-names.txt");
+    }
+
+    private List<String> readFromTextResourceFile(String filename) throws IOException {
+        List<String> textLines = new ArrayList<>();
+        InputStreamReader inputStreamReader = (InputStreamReader) getTextResource(filename);
+        if (inputStreamReader == null) return Collections.emptyList();
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        while (reader.readLine() != null) {
+            textLines.add(reader.readLine());
         }
-        return Collections.emptyList();
+        reader.close();
+        return textLines;
     }
 
     public static String getNMSVersion() {
         String v = Bukkit.getServer().getClass().getPackage().getName();
         return v.substring(v.lastIndexOf('.') + 1);
-    }
-
-    public Set<Stable> getStableRegions() {
-        Set<UUID> stableIds = getConfigManager(ConfigFile.STABLES).getKeys(false)
-                .stream()
-                .map(UUID::fromString)
-                .collect(Collectors.toSet());
-        return stableIds.stream().map(uuid -> new StableData(this, uuid).getRegion()).collect(Collectors.toSet());
-    }
-
-    public Set<OwnerData> getAllOwners() {
-        Set<UUID> ownerIds = getConfigManager(ConfigFile.OWNERS).getKeys(false)
-                .stream()
-                .map(UUID::fromString)
-                .collect(Collectors.toSet());
-        return ownerIds.stream().map(uuid -> new OwnerData(this, uuid)).collect(Collectors.toSet());
-    }
-
-    public Set<HorseData> getAllHorses() {
-        Set<UUID> horseIds = getConfigManager(ConfigFile.HORSES).getKeys(false)
-                .stream()
-                .map(UUID::fromString)
-                .collect(Collectors.toSet());
-        return horseIds.stream().map(uuid -> new HorseData(this, uuid)).collect(Collectors.toSet());
     }
 
     public void logDebug(Level level, String message) {

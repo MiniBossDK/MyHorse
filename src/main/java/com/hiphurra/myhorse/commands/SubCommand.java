@@ -7,11 +7,12 @@ import org.bukkit.entity.Player;
 import java.util.Collections;
 import java.util.List;
 
-public interface Command {
+public interface SubCommand {
 
     boolean execute(MyHorse plugin, CommandSender sender, String... args);
 
     default List<String> tab(MyHorse plugin, Player player, String... args) {
         return Collections.emptyList();
     }
+
 }

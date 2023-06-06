@@ -45,14 +45,12 @@ public class LanguageManager {
         loadLanguageConfig();
     }
 
-    private void downloadLanguageFile(Locale locale) throws IOException {
+    private File downloadLanguageFile(Locale locale) throws IOException {
         BufferedInputStream in = new BufferedInputStream(
-                new URL("https://raw.githubusercontent.com/DogOnFire/MyHorse/master/lang/" + locale.getDisplayLanguage().toLowerCase()).openStream());
+                new URL("https://raw.githubusercontent.com/DogOnFire/MyHorse/master/lang/" + locale.getDisplayLanguage().toLowerCase() + ".yml").openStream());
 
         FileOutputStream fileOutputStream = new FileOutputStream(this.plugin.getDataFolder() + "/lang/" + locale.getDisplayLanguage().toLowerCase() + ".yml");
-
         BufferedOutputStream bout = new BufferedOutputStream(fileOutputStream, 1024);
-
         byte[] data = new byte[1024];
 
         int x;
@@ -62,16 +60,17 @@ public class LanguageManager {
         bout.close();
 
         in.close();
+        return new File(this.plugin.getDataFolder() + "/lang/" + locale.getDisplayLanguage().toLowerCase() + ".yml");
     }
 
     public void loadLanguageConfig() {
 
-        File languageConfigFile = new File(this.plugin.getDataFolder() + "/lang/" + locale.getDisplayLanguage().toLowerCase() + ".yml");
+        File languageConfigFile = new File(this.plugin.getDataFolder() + "/lang/" + getLocale().getDisplayLanguage().toLowerCase() + ".yml");
         if(!languageConfigFile.exists()) {
             try {
-                downloadLanguageFile(locale);
+                languageConfigFile = downloadLanguageFile(getLocale());
             } catch (IOException exception) {
-                plugin.logDebug(Level.SEVERE, "Could not download " + locale.getDisplayLanguage() + ".yml!");
+                plugin.logDebug(Level.SEVERE, "Could not download " + getLocale().getDisplayLanguage() + ".yml!");
             }
         }
         languageConfig = YamlConfiguration.loadConfiguration(languageConfigFile);
@@ -90,7 +89,7 @@ public class LanguageManager {
         }
         if (string.contains(AMOUNT)) {
             if((amount.doubleValue() % 1) == 0) string = string.replace(AMOUNT, ChatColor.GOLD + Integer.toString(amount.intValue()) + messageType.getChatColor());
-            else string = string.replace(AMOUNT, ChatColor.GOLD + Double.toString(amount.doubleValue()) + messageType.getChatColor());
+            else string = string.replace(AMOUNT, ChatColor.GOLD + Double.toString(getAmount().doubleValue()) + messageType.getChatColor());
         }
         if(string.contains(AMOUNT_ECONOMY)) {
             string = string.replace(AMOUNT_ECONOMY, ChatColor.GOLD + plugin.getEconomyManager().format(getAmountEconomy()) + messageType.getChatColor());

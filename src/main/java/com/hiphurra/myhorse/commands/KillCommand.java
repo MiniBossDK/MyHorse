@@ -5,17 +5,13 @@ import com.hiphurra.myhorse.HorseUtils;
 import com.hiphurra.myhorse.MyHorse;
 import com.hiphurra.myhorse.OwnerData;
 import com.hiphurra.myhorse.enums.PermissionNode;
-import com.hiphurra.myhorse.inventory.InventoryManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;

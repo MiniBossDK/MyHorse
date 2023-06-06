@@ -5,10 +5,8 @@ import com.hiphurra.myhorse.MyHorse;
 import com.hiphurra.myhorse.OwnerData;
 import com.hiphurra.myhorse.builders.Message;
 import com.hiphurra.myhorse.enums.LanguageString;
-import com.hiphurra.myhorse.enums.PermissionNode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,21 +57,5 @@ public class CommandLock implements Command {
         OwnerData ownerData = new OwnerData(plugin, player.getUniqueId());
         if(args.length == 2) return new ArrayList<>( ownerData.getHorses().values() );
         return Collections.emptyList();
-    }
-
-    @Override
-    public @NotNull String getName() {
-        return "lock";
-    }
-
-    @Override
-    public @NotNull String getUsage() {
-        return "/mh lock |  /mh lock <horse_name>";
-    }
-
-    @NotNull
-    @Override
-    public PermissionNode getPermission() {
-        return PermissionNode.LOCK;
     }
 }

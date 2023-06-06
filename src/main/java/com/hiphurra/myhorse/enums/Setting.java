@@ -6,6 +6,7 @@ import org.bukkit.World;
 import java.util.stream.Collectors;
 
 public enum Setting {
+    STORAGE_SOLUTION("sqlite"),
     LANGUAGE("en"),
     ALLOW_HORSE_TELEPORTATION(false),
     ALLOW_CHEST_ON_ALL_HORSES(false),

@@ -100,8 +100,19 @@ public class Message {
         languageManager.setDamageCause(this.damageCause);
         languageManager.setWorld(this.world);
 
-
         player.sendMessage(languageManager.getLanguageString(this.languageString));
+    }
+
+    public String getMessage() {
+        LanguageManager languageManager = plugin.getLanguageManager();
+        languageManager.setUsage(this.usage);
+        languageManager.setAmountEconomy(this.economyAmount);
+        languageManager.setAmount(this.amount);
+        languageManager.setHorseName(this.horseName);
+        languageManager.setPlayerName(this.playerName);
+        languageManager.setDamageCause(this.damageCause);
+        languageManager.setWorld(this.world);
+        return languageManager.getLanguageString(this.languageString);
     }
 
 }

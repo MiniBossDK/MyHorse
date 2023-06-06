@@ -3,10 +3,8 @@ package com.hiphurra.myhorse.stable;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Assert;
 
 import java.awt.*;
-import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 
 public class Region {

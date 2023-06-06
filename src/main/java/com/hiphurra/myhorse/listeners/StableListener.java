@@ -2,9 +2,7 @@ package com.hiphurra.myhorse.listeners;
 
 import com.hiphurra.myhorse.MyHorse;
 import com.hiphurra.myhorse.events.PlayerDefiningAreaEvent;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

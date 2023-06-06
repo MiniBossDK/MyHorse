@@ -15,6 +15,7 @@ public class EconomyManager {
         economyPlugin = plugin.getEconomyPlugin().getProvider();
         plugin.logDebug(Level.INFO, "Using for Economy: " + plugin.getEconomyPlugin().getProvider().getName());
         this.plugin = plugin;
+
     }
 
     public boolean hasAmount(OfflinePlayer player, double amount) {

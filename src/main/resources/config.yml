@@ -6,8 +6,8 @@
 # |                                 |  |  |  |  | \__/ |  \ __) |__                             | #
 # |                                                                                             | #
 # |                                                                                             | #
-# |                                  |--   Made by DogOnFire  --|                               | #
-# |                                  |-- Refactor by hiphurra --|                               | #
+# |                                  |--   Made by hiphurra  --|                                | #
+# |                                  |-- Inspired  DogOnFire --|                                | #
 # |                                                                                             | #
 # |                                                                                             | #
 # |                                                                                             | #
@@ -15,7 +15,13 @@
 # +---------------------------------------------------------------------------------------------+ #
 ###################################################################################################
 settings:
-  # Currently supported languages: en (english), da (danish)
+  # Storage solutions:
+  # -| yaml (.yaml files)
+  # -| sqlite (flat files)
+  storage-solution: sqlite
+  # Currently supported languages:
+  # en (english)
+  # da (danish)
   language: en
   allow_horse_teleportation: false
   allow_chest_on_all_horses: false
