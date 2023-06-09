@@ -25,15 +25,7 @@ public class StableCommand implements Command {
             return true;
         }
 
-        switch (args[1]) {
-            case "set":
-                return new SetSubCommand(plugin, player, args).execute();
-            case "goto":
-                return new GotoSubCommand(plugin, player, args).execute();
-            default:
-                player.sendMessage(getUsage());
-                return true;
-        }
+
 
         OwnerData ownerData = new OwnerData(plugin, player.getUniqueId());
         StableData stableData = new StableData(plugin, UUID.randomUUID());
@@ -102,7 +94,7 @@ public class StableCommand implements Command {
         }
 
         public boolean execute() {
-            if(args.length > )
+
 
 
             return true;

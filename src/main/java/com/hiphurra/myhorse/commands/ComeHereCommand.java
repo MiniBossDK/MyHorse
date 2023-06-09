@@ -55,6 +55,7 @@ public class ComeHereCommand implements Command {
         }
 
         if(ownerData.getCurrentHorseIdentifier() == null) {
+            // TODO - Use the LanguageManager
             player.sendMessage("No horse has been selected!");
             return false;
         }

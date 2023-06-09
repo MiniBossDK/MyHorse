@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
+// TODO - Make sure this command also eject the player from the horse if they are riding it.
+// TODO - Maybe also make a new command that ejects all players from horses.
 public class RemoveTrustCommand implements Command {
     @Override
     public boolean execute(MyHorse plugin, CommandSender sender, String... args) {

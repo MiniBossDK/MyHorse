@@ -30,6 +30,7 @@ public class InventoryListener implements Listener {
         horseData.setInventory(true);
         InventoryManager inventoryManager = new InventoryManager(plugin, event.getHorse());
         inventoryManager.setItems(new ItemStack[9]);
+        // TODO - Use the LanguageManager to give the message
         event.getPlayer().sendMessage("Chest has been placed!");
     }
 

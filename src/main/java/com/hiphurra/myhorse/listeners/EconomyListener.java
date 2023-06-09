@@ -27,12 +27,11 @@ public class EconomyListener implements Listener {
 
     @EventHandler
     public void horseBoughtEvent(HorseBoughtEvent event) {
-        System.out.println("here");
         Player buyer = event.getBuyer();
         HorseData horseData = new HorseData(plugin, event.getAbstractHorse().getUniqueId());
         OwnerData ownerData = new OwnerData(plugin, buyer.getUniqueId());
         ownerData.setBuying(false);
-        OfflinePlayer horseOwner = Bukkit.getOfflinePlayer(horseData.getOwner());
+        OfflinePlayer horseOwner = Bukkit.getOfflinePlayer(horseData.getOwnerId());
         ownerData.setSalesRecord(new SalesRecord(
                 horseData.getPrice(),
                 Bukkit.getOfflinePlayer(ownerData.getOwnerId()).getName(),

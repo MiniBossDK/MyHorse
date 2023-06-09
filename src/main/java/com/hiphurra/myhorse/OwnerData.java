@@ -5,7 +5,6 @@ import com.hiphurra.myhorse.managers.ConfigManager;
 import com.hiphurra.myhorse.stable.StableData;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Horse;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DateFormat;
@@ -93,7 +92,7 @@ public class OwnerData {
             Map<UUID, String> horses = new HashMap<>();
             for (String horseId : horseConfig.getKeys(false)) {
                 HorseData horseData = new HorseData(plugin, UUID.fromString(horseId));
-                UUID horseOwner = horseData.getOwner();
+                UUID horseOwner = horseData.getOwnerId();
                 if(horseOwner.equals(getOwnerId())) {
                     String horseName = horseData.getName();
                     if(horseName == null) continue;

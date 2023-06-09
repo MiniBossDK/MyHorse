@@ -14,9 +14,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+// TODO - This command should maybe only be for admins. Seems a bit OP to be able to claim any horse without any effort.
 public class ClaimCommand implements Command {
 
     @Override
@@ -28,7 +30,7 @@ public class ClaimCommand implements Command {
             HorseData horseData = new HorseData(plugin, entity.getUniqueId());
             if(!HorseUtils.isTamed().test(horse) && !horseData.hasOwner()) {
                 OwnerData ownerData = new OwnerData(plugin, player.getUniqueId());
-                String name = plugin.getRandomPlaceholderName(NameType.HORSE, (List<String>) ownerData.getHorses().values());
+                String name = plugin.getRandomPlaceholderName(NameType.HORSE, new ArrayList<String>( ownerData.getHorses().values() ));
                 horse.setOwner(player);
                 ownerData.setCurrentHorseIdentifier(horse.getUniqueId());
                 horseData.setOwner(player.getUniqueId());
@@ -42,7 +44,7 @@ public class ClaimCommand implements Command {
                 message.sendMessage(player);
                 return true;
             }
-            if(horseData.getOwner().equals(player.getUniqueId())){
+            if(horseData.getOwnerId().equals(player.getUniqueId())){
                 Message message = new Message.MessageBuilder(plugin, LanguageString.AlreadyOwnThatHorse)
                         .setHorseName(horseData.getName())
                         .build();
@@ -50,7 +52,7 @@ public class ClaimCommand implements Command {
                 return true;
             } else {
                 Message message = new Message.MessageBuilder(plugin, LanguageString.YouCannotClaimThisHorse)
-                        .setPlayerName(plugin.getServer().getOfflinePlayer(horseData.getOwner()).getName())
+                        .setPlayerName(plugin.getServer().getOfflinePlayer(horseData.getOwnerId()).getName())
                         .build();
                 message.sendMessage(player);
                 return true;

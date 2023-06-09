@@ -1,7 +1,7 @@
 name: MyHorse
 version: ${project.version}
 main: com.hiphurra.myhorse.MyHorse
-api-version: 1.16
+api-version: 1.19
 authors: [ hiphurra ]
 depend: [Vault]
 commands:

@@ -69,6 +69,7 @@ public class PermissionManager {
         {
             for (OfflinePlayer offlinePlayer : Bukkit.getOfflinePlayers())
             {
+                if(offlinePlayer.getName() == null) continue;
                 if(offlinePlayer.getName().equals(playerName))
                 {
                     return vaultPermission.getPrimaryGroup(null, offlinePlayer);

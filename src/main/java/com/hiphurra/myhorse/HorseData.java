@@ -1,8 +1,10 @@
 package com.hiphurra.myhorse;
 
 import com.hiphurra.myhorse.enums.ConfigFile;
+import com.hiphurra.myhorse.enums.PermissionNode;
 import com.hiphurra.myhorse.managers.ConfigManager;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +40,7 @@ public class HorseData {
         setHorseConfig(getHorseId().toString() + OWNER, playerId.toString());
     }
 
-    public UUID getOwner() {
+    public UUID getOwnerId() {
         String horseId = getHorseConfig().getString(getHorseId().toString() + OWNER);
         if(horseId != null) return UUID.fromString(horseId);
         return null;
@@ -125,6 +127,29 @@ public class HorseData {
 
     public boolean hasInventory() {
         return getHorseConfig().getBoolean(getHorseId().toString() + HAS_INVENTORY);
+    }
+
+    /**
+     * Checks if a player has the privileges to access the horse
+     * @param player the player that tries to access the horse
+     * @return true of the player has access and false if not
+     */
+    public boolean hasPlayerAccess(Player player)
+    {
+        return getTrustedPlayers().contains(player.getUniqueId())
+                || player.getUniqueId().equals(getOwnerId())
+                || player.isOp()
+                || plugin.getPermissionManager().hasPermission(player, PermissionNode.ADMIN);
+    }
+
+    public boolean isPlayerTrusted(Player player)
+    {
+        return getTrustedPlayers().contains(player.getUniqueId());
+    }
+
+    public boolean isPlayerOwner(Player player)
+    {
+        return player.getUniqueId().equals(getOwnerId());
     }
 
     private ConfigManager getHorseConfig() {

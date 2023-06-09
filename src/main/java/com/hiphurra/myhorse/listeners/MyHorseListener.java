@@ -4,21 +4,18 @@ import com.hiphurra.myhorse.*;
 import com.hiphurra.myhorse.builders.Message;
 import com.hiphurra.myhorse.enums.LanguageString;
 import com.hiphurra.myhorse.enums.NameType;
+import com.hiphurra.myhorse.enums.PermissionNode;
 import com.hiphurra.myhorse.enums.Setting;
 import com.hiphurra.myhorse.events.HorseBoughtEvent;
 import com.hiphurra.myhorse.events.HorseDamageEvent;
 import com.hiphurra.myhorse.events.HorseInventoryOpenEvent;
 import com.hiphurra.myhorse.events.PlayerPutChestOnHorseEvent;
-import com.hiphurra.myhorse.horses.CustomSkeletonHorse;
 import com.hiphurra.myhorse.inventory.InventoryManager;
 import com.hiphurra.myhorse.stable.Stable;
-import net.minecraft.server.v1_16_R3.World;
-import net.minecraft.server.v1_16_R3.WorldServer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,12 +24,12 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class MyHorseListener implements Listener {
@@ -44,7 +41,7 @@ public class MyHorseListener implements Listener {
     public MyHorseListener(MyHorse plugin) {
         this.plugin = plugin;
     }
-
+    /*
     @EventHandler (priority = EventPriority.MONITOR)
     public void createSpawnEvent(CreatureSpawnEvent event) {
         Entity entity = event.getEntity();
@@ -57,6 +54,7 @@ public class MyHorseListener implements Listener {
         server.addEntity(customSkeletonHorse, CreatureSpawnEvent.SpawnReason.CUSTOM);
         entity.remove();
     }
+    */
     /* TODO - Make teleportation with horse work consistently
     @EventHandler
     public void onPlayerExitVehicle(VehicleExitEvent event) {
@@ -95,7 +93,7 @@ public class MyHorseListener implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, () -> abstractHorse.addPassenger(player), 6L);
     }
      */
-
+    /*
     @EventHandler (priority = EventPriority.MONITOR)
     public void chunkLoadEvent(ChunkLoadEvent event) {
         for (Entity entity : event.getChunk().getEntities()) {
@@ -109,7 +107,7 @@ public class MyHorseListener implements Listener {
             }
         }
     }
-
+    */
     @EventHandler
     public void entityDeathEvent(EntityDeathEvent event) {
         Entity entity = event.getEntity();
@@ -155,6 +153,7 @@ public class MyHorseListener implements Listener {
         for (Stable stableRegion : plugin.getStableRegions()) {
             if(stableRegion.isInRegion(location)) {
                 if(!stableRegion.getOwner().equals(player.getUniqueId())) {
+                    // TODO - Use LanguageManager
                     player.sendMessage(ChatColor.RED + "You don't have permission to enter "  + ChatColor.GOLD + Bukkit.getOfflinePlayer(stableRegion.getOwner()).getName() +  "'s" +  ChatColor.RED + " stable!");
                     event.setCancelled(true);
                 }
@@ -210,6 +209,7 @@ public class MyHorseListener implements Listener {
         if(holder == null) return;
         if(!(holder instanceof Entity)) return;
         if(!(HorseUtils.isHorse().test((Entity) holder))) return;
+        // TODO - This condition might not work always. Find a better way of identifying that the inventory is in fact the horse's inventory
         if(event.getInventory().getSize() % 9 != 0) return;
         AbstractHorse abstractHorse = (AbstractHorse) holder;
         InventoryManager inventoryManager = new InventoryManager(plugin, abstractHorse);
@@ -223,6 +223,7 @@ public class MyHorseListener implements Listener {
         if(holder == null) return;
         if(!(holder instanceof Entity)) return;
         if(!(HorseUtils.isHorse().test((Entity) holder))) return;
+        // TODO - This condition might not work always. Find a better way of identifying that the inventory is in fact the horse's inventory
         if(event.getInventory().getSize() % 9 != 0) return;
         AbstractHorse abstractHorse = (AbstractHorse) holder;
         InventoryManager inventoryManager = new InventoryManager(plugin, abstractHorse);
@@ -235,9 +236,11 @@ public class MyHorseListener implements Listener {
         if(holder == null) return;
         if(!(holder instanceof Entity)) return;
         if(!(HorseUtils.isHorse().test((Entity) holder))) return;
+        // TODO - This condition might not work always. Find a better way of identifying that the inventory is in fact the horse's inventory
         if(event.getDestination().getSize() % 9 != 0) return;
         AbstractHorse abstractHorse = (AbstractHorse) holder;
         InventoryManager inventoryManager = new InventoryManager(plugin, abstractHorse);
+        // TODO - Test why this code is here and document why it is there
         Bukkit.getScheduler().runTaskLater(plugin, () -> inventoryManager.setItems(event.getDestination().getStorageContents()), 1L);
     }
 
@@ -249,12 +252,13 @@ public class MyHorseListener implements Listener {
         if(!(holder instanceof Entity)) return;
         if(!(HorseUtils.isHorse().test((Entity) holder))) return;
         if(event.getInventory().getSize() % 9 != 0) return;
-        System.out.println("yes");
         AbstractHorse abstractHorse = (AbstractHorse) holder;
         InventoryManager inventoryManager = new InventoryManager(plugin, abstractHorse);
+        // TODO - Test why this code is here and document why it is there
         Bukkit.getScheduler().runTaskLater(plugin, () -> inventoryManager.setItems(event.getClickedInventory().getStorageContents()), 1L);
     }
 
+    // TODO - Maybe change it so the player does not open the inventory in horse while riding but when not riding and interacting while sneaking
     @EventHandler
     public void inventoryOpenEvent(InventoryOpenEvent event) {
         InventoryHolder holder = event.getInventory().getHolder();
@@ -282,23 +286,25 @@ public class MyHorseListener implements Listener {
         Player player = (Player) event.getEntered();
         OwnerData ownerData = new OwnerData(plugin, player.getUniqueId());
         HorseData horseData = new HorseData(plugin, abstractHorse.getUniqueId());
-        if(horseData.getOwner() == null) return;
-        if(!horseData.getOwner().equals(player.getUniqueId()) && !horseData.getTrustedPlayers().contains(player.getUniqueId())) {
-            Message message = new Message.MessageBuilder(plugin, LanguageString.YouMountedOwnedHorse)
-                    .setHorseName(horseData.getName())
-                    .setPlayerName(Bukkit.getOfflinePlayer(horseData.getOwner()).getName())
-                    .build();
-            message.sendMessage(player);
-            event.setCancelled(true);
-        }
-        if(horseData.getOwner().equals(player.getUniqueId())) {
+        if(!horseData.hasOwner()) return;
+
+        if(horseData.isPlayerOwner(player)) {
             ownerData.setCurrentHorseIdentifier(horseData.getHorseId());
             Message message = new Message.MessageBuilder(plugin, LanguageString.YouSelectedHorse)
                     .setHorseName(horseData.getName())
                     .build();
             message.sendMessage(player);
+            return;
         }
-
+        /*
+        if(horseData.isPlayerTrusted(player) || isAdmin(player)) {
+            Message message = new Message.MessageBuilder(plugin, LanguageString.YouMountedOwnedHorse)
+                    .setHorseName(horseData.getName())
+                    .setPlayerName(Bukkit.getOfflinePlayer(horseData.getOwnerId()).getName())
+                    .build();
+            message.sendMessage(player);
+        }
+        */
     }
 
     /*
@@ -352,76 +358,159 @@ public class MyHorseListener implements Listener {
         if(!HorseUtils.isHorse().test(event.getRightClicked())) return;
         Player player = event.getPlayer();
         AbstractHorse abstractHorse = (AbstractHorse) event.getRightClicked();
-        OwnerData ownerData = new OwnerData(plugin, player.getUniqueId());
         HorseData horseData = new HorseData(plugin, abstractHorse.getUniqueId());
+
         if(!horseData.hasOwner()) return;
-        if(horseData.isForSale()) {
-            if(horseData.getOwner().equals(player.getUniqueId())) {
-                Message message = new Message.MessageBuilder(plugin, LanguageString.CannotBuyOwnHorse).build();
-                message.sendMessage(player);
-            } else if (plugin.getEconomyManager().hasAmount(player, horseData.getPrice())) {
-                if(!ownerData.isBuying()) {
-                    Message message = new Message.MessageBuilder(plugin, LanguageString.AreYouSureYouWantToBuyHorse)
-                            .setHorseName(horseData.getName())
-                            .setEconomyAmount(horseData.getPrice())
-                            .build();
-                    message.sendMessage(player);
-                    ownerData.setBuying(true);
-                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> ownerData.setBuying(false), 20L*10);
-                    event.setCancelled(true);
-                    return;
-                }
-                HorseBoughtEvent horseBoughtEvent = new HorseBoughtEvent(abstractHorse, horseData.getPrice(), player);
-                if(!horseBoughtEvent.isCancelled()) Bukkit.getServer().getPluginManager().callEvent(horseBoughtEvent);
-                event.setCancelled(true);
-                return;
-            } else {
-                Message message = new Message.MessageBuilder(plugin, LanguageString.YouDoNotHaveEnoughMoneyToBuyHorse)
-                        .setHorseName(horseData.getName())
-                        .setEconomyAmount(horseData.getPrice())
+
+        // If the player tries to use a name tag on a horse
+        if (hasPlayerItemInEitherHand(player, Material.NAME_TAG)) {
+            if(horseData.isPlayerOwner(player))
+            {
+                Message message = new Message.MessageBuilder(plugin, LanguageString.CannotUseNameTags)
+                        .setEconomyAmount((double) plugin.getSettings().get(Setting.SETNAME_COMMAND_PRICE))
                         .build();
                 message.sendMessage(player);
+                event.setCancelled(true);
             }
+            else
+            {
+                Message message = new Message.MessageBuilder(plugin, LanguageString.CannotUseLockedHorse)
+                        .setHorseName(horseData.getName())
+                        .setPlayerName(Bukkit.getOfflinePlayer(horseData.getOwnerId()).getName())
+                        .build();
+                message.sendMessage(player);
+                event.setCancelled(true);
+            }
+        }
+
+        if(horseData.isForSale()) {
+            buyHorse(abstractHorse, horseData, player);
             event.setCancelled(true);
             return;
         }
-        if(!horseData.getOwner().equals(player.getUniqueId()) || !player.isOp()) return;
-        if(horseData.getOwner().equals(player.getUniqueId())) {
-            if(player.getInventory().getItemInMainHand().getType().equals(Material.CHEST)
-                    || player.getInventory().getItemInOffHand().getType().equals(Material.CHEST) ) {
-                if(player.isSneaking()) {
-                    PlayerPutChestOnHorseEvent playerPutChestOnHorseEvent = new PlayerPutChestOnHorseEvent(player, abstractHorse);
-                    plugin.getServer().getPluginManager().callEvent(playerPutChestOnHorseEvent);
-                    event.setCancelled(true);
-                    return;
-                }
-                event.setCancelled(true);
-                return;
-            }
-        }
-        if(!horseData.getOwner().equals(player.getUniqueId()) || !player.isOp()) {
-            if(!horseData.getTrustedPlayers().contains(player.getUniqueId())) {
-                Message message = new Message.MessageBuilder(plugin, LanguageString.CannotUseLockedHorse)
-                        .setPlayerName(Bukkit.getOfflinePlayer(horseData.getOwner()).getName())
-                        .build();
-                message.sendMessage(player);
-                event.setCancelled(true);
-            } else {
+
+        // If the player is not the owner of the horse or an admin
+        if(!horseData.isPlayerOwner(player) && !isAdmin(player))
+        {
+            // If the player is a trusted player of the horse or an admin
+            if(horseData.isPlayerTrusted(player))
+            {
+                plugin.logDebug(Level.INFO, "Player " + player.getName() + " mounted trusted horse " + horseData.getName() + " owned by " + Bukkit.getOfflinePlayer(horseData.getOwnerId()).getName());
                 Message message = new Message.MessageBuilder(plugin, LanguageString.YouMountedOwnedHorse)
                         .setHorseName(horseData.getName())
-                        .setPlayerName(Bukkit.getOfflinePlayer(horseData.getOwner()).getName())
+                        .setPlayerName(Bukkit.getOfflinePlayer(horseData.getOwnerId()).getName())
                         .build();
                 message.sendMessage(player);
+                return;
             }
-        } else {
-            if(player.getInventory().getItemInMainHand().getType().equals(Material.NAME_TAG) ||
-                    player.getInventory().getItemInMainHand().getType().equals(Material.NAME_TAG)) {
-                Message message = new Message.MessageBuilder(plugin, LanguageString.CannotUseNameTags)
-                        .setAmount((double) plugin.getSettings().get(Setting.SETNAME_COMMAND_PRICE))
+            if(horseData.isLocked())
+            {
+                plugin.logDebug(Level.INFO, "Player " + player.getName() + " tried to mount locked horse " + horseData.getName() + " owned by " + Bukkit.getOfflinePlayer(horseData.getOwnerId()).getName());
+                Message message = new Message.MessageBuilder(plugin, LanguageString.CannotUseLockedHorse)
+                        .setPlayerName(Bukkit.getOfflinePlayer(horseData.getOwnerId()).getName())
                         .build();
                 message.sendMessage(player);
                 event.setCancelled(true);
             }
+            else
+            {
+                plugin.logDebug(Level.INFO, "Player " + player.getName() + " mounted unlocked horse " + horseData.getName() + " owned by " + Bukkit.getOfflinePlayer(horseData.getOwnerId()).getName());
+                Message message = new Message.MessageBuilder(plugin, LanguageString.YouMountedOwnedHorse)
+                        .setHorseName(horseData.getName())
+                        .setPlayerName(Bukkit.getOfflinePlayer(horseData.getOwnerId()).getName())
+                        .build();
+                message.sendMessage(player);
+            }
+            return;
         }
+
+        // If the player is the owner of the horse or an admin
+        if(horseData.isPlayerOwner(player) || isAdmin(player))
+        {
+            if (hasPlayerItemInEitherHand(player, Material.CHEST))
+            {
+                if (player.isSneaking())
+                {
+                    if ((boolean) plugin.getSettings().get(Setting.ALLOW_CHEST_ON_ALL_HORSES))
+                    {
+                        if (horseData.hasInventory()) {
+                            Message message = new Message.MessageBuilder(plugin, LanguageString.HorseAlreadyHasChest)
+                                    .setHorseName(horseData.getName())
+                                    .setEconomyAmount(horseData.getPrice())
+                                    .build();
+                            message.sendMessage(player);
+                            event.setCancelled(true);
+                            return;
+                        }
+
+                        PlayerPutChestOnHorseEvent playerPutChestOnHorseEvent = new PlayerPutChestOnHorseEvent(player, abstractHorse);
+                        plugin.getServer().getPluginManager().callEvent(playerPutChestOnHorseEvent);
+
+                        event.setCancelled(true);
+                    }
+                    else
+                    {
+                        Message message = new Message.MessageBuilder(plugin, LanguageString.ChestFeatureDisabled).build();
+                        message.sendMessage(player);
+                        event.setCancelled(true);
+                    }
+                }
+
+            }
+
+            if(isAdmin(player) && !horseData.isPlayerOwner(player))
+            {
+                Message message = new Message.MessageBuilder(plugin, LanguageString.YouMountedOwnedHorse)
+                        .setHorseName(horseData.getName())
+                        .setPlayerName(Bukkit.getOfflinePlayer(horseData.getOwnerId()).getName())
+                        .build();
+
+                message.sendMessage(player);
+            }
+        }
+    }
+
+    private void buyHorse(AbstractHorse horseEntity, HorseData horseForSale, Player player)
+    {
+        if(horseForSale.getOwnerId().equals(player.getUniqueId()))
+        {
+            Message message = new Message.MessageBuilder(plugin, LanguageString.CannotBuyOwnHorse).build();
+            message.sendMessage(player);
+        }
+
+        OwnerData ownerData = new OwnerData(plugin, player.getUniqueId());
+
+        if (!plugin.getEconomyManager().hasAmount(player, horseForSale.getPrice())) {
+            Message message = new Message.MessageBuilder(plugin, LanguageString.YouDoNotHaveEnoughMoneyToBuyHorse)
+                    .setHorseName(horseForSale.getName())
+                    .setEconomyAmount(horseForSale.getPrice())
+                    .build();
+            message.sendMessage(player);
+        }
+        if(!ownerData.isBuying()) {
+            Message message = new Message.MessageBuilder(plugin, LanguageString.AreYouSureYouWantToBuyHorse)
+                    .setHorseName(horseForSale.getName())
+                    .setEconomyAmount(horseForSale.getPrice())
+                    .build();
+            message.sendMessage(player);
+            ownerData.setBuying(true);
+            // TODO - Validate if this creates problems down the line
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> ownerData.setBuying(false), 20L*10);
+            return;
+        }
+        HorseBoughtEvent horseBoughtEvent = new HorseBoughtEvent(horseEntity, horseForSale.getPrice(), player);
+        if(!horseBoughtEvent.isCancelled()) Bukkit.getServer().getPluginManager().callEvent(horseBoughtEvent);
+
+    }
+
+    private boolean hasPlayerItemInEitherHand(Player player, Material material)
+    {
+        return player.getInventory().getItemInMainHand().getType().equals(material)
+                || player.getInventory().getItemInOffHand().getType().equals(material);
+    }
+
+    private boolean isAdmin(Player player)
+    {
+        return player.isOp() || plugin.getPermissionManager().hasPermission(player, PermissionNode.ADMIN);
     }
 }

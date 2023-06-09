@@ -44,7 +44,7 @@ public class LanguageManager {
         this.plugin = plugin;
         loadLanguageConfig();
     }
-
+    // TODO - This long gone from working, so maybe delete it down the road
     private void downloadLanguageFile(Locale locale) throws IOException {
         BufferedInputStream in = new BufferedInputStream(
                 new URL("https://raw.githubusercontent.com/DogOnFire/MyHorse/master/lang/" + locale.getDisplayLanguage().toLowerCase()).openStream());
@@ -80,31 +80,30 @@ public class LanguageManager {
 
 
     public String parseString(String id, MessageType messageType) {
-        String string = messageType.getChatColor() + id.replaceAll("&([0-9a-f])", "§$1");
-
-        if (string.contains(NAME)) {
-            string = string.replace(NAME, ChatColor.GOLD + getHorseName() + messageType.getChatColor());
+        String message = messageType.getChatColor() + id.replaceAll("&([0-9a-f])", "§$1");
+        if (message.contains(NAME)) {
+            message = message.replace(NAME, ChatColor.GOLD + getHorseName() + messageType.getChatColor());
         }
-        if (string.contains(PLAYER_NAME)) {
-            string = string.replace(PLAYER_NAME, ChatColor.GOLD + getPlayerName() + messageType.getChatColor());
+        if (message.contains(PLAYER_NAME)) {
+            message = message.replace(PLAYER_NAME, ChatColor.GOLD + getPlayerName() + messageType.getChatColor());
         }
-        if (string.contains(AMOUNT)) {
-            if((amount.doubleValue() % 1) == 0) string = string.replace(AMOUNT, ChatColor.GOLD + Integer.toString(amount.intValue()) + messageType.getChatColor());
-            else string = string.replace(AMOUNT, ChatColor.GOLD + Double.toString(amount.doubleValue()) + messageType.getChatColor());
+        if (message.contains(AMOUNT)) {
+            if((amount.doubleValue() % 1) == 0) message = message.replace(AMOUNT, ChatColor.GOLD + Integer.toString(amount.intValue()) + messageType.getChatColor());
+            else message = message.replace(AMOUNT, ChatColor.GOLD + Double.toString(amount.doubleValue()) + messageType.getChatColor());
         }
-        if(string.contains(AMOUNT_ECONOMY)) {
-            string = string.replace(AMOUNT_ECONOMY, ChatColor.GOLD + plugin.getEconomyManager().format(getAmountEconomy()) + messageType.getChatColor());
+        if(message.contains(AMOUNT_ECONOMY)) {
+            message = message.replace(AMOUNT_ECONOMY, ChatColor.GOLD + plugin.getEconomyManager().format(getAmountEconomy()) + messageType.getChatColor());
         }
-        if(string.contains(USAGE)) {
-            string = string.replace(USAGE, ChatColor.GOLD + getUsage()  + messageType.getChatColor());
+        if(message.contains(USAGE)) {
+            message = message.replace(USAGE, ChatColor.GOLD + getUsage()  + messageType.getChatColor());
         }
-        if(string.contains(DAMAGE_CAUSE)) {
-            string = string.replace(DAMAGE_CAUSE, ChatColor.GOLD + getDamageCause().name() + messageType.getChatColor());
+        if(message.contains(DAMAGE_CAUSE)) {
+            message = message.replace(DAMAGE_CAUSE, ChatColor.GOLD + getDamageCause().name() + messageType.getChatColor());
         }
-        if(string.contains(WORLD)) {
-            string = string.replace(WORLD, ChatColor.GOLD + getWorld().getName() + messageType.getChatColor());
+        if(message.contains(WORLD)) {
+            message = message.replace(WORLD, ChatColor.GOLD + getWorld().getName() + messageType.getChatColor());
         }
-        return string;
+        return message;
     }
 
     public String getLanguageString(LanguageString languageString) {

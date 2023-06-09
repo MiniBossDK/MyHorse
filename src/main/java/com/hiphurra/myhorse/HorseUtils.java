@@ -16,6 +16,7 @@ public class HorseUtils {
         this.plugin = plugin;
     }
 
+    // Make this not a predicate and also be prepared for version 1.20 which will have camels
     public static Predicate<Entity> isHorse() {
         return entity -> entity instanceof AbstractHorse && !(entity instanceof Llama);
     }

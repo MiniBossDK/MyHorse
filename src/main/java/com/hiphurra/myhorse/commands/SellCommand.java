@@ -26,6 +26,11 @@ public class SellCommand implements Command {
 
         Player player = (Player) sender;
         OwnerData ownerData = new OwnerData(plugin, player.getUniqueId());
+        if(args.length == 1)
+        {
+            player.sendMessage(getUsage());
+            return true;
+        }
         for (Entry<UUID, String> horseEntry : ownerData.getHorses().entrySet()) {
             if(horseEntry.getValue().equalsIgnoreCase(args[1])) {
                 HorseData horseData = new HorseData(plugin, horseEntry.getKey());
@@ -61,15 +66,16 @@ public class SellCommand implements Command {
                             .build();
                     message.sendMessage(player);
                     message = new Message.MessageBuilder(plugin, LanguageString.InfoCancelHorseSale)
-                            .setEconomyAmount(0)
                             .setUsage(getUsage())
                             .build();
                     message.sendMessage(player);
                     return true;
                 } catch (NumberFormatException exception) {
+                    // TODO - Use MessageBuilder
                     player.sendMessage(args[2] + " is not a number!");
                     return true;
                 } catch (NullPointerException exception) {
+                    // TODO - Use MessageBuilder
                     player.sendMessage("Horse needs a price to set it on sale");
                     return true;
                 }

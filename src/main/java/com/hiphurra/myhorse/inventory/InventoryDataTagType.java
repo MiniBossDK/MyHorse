@@ -1,13 +1,13 @@
 package com.hiphurra.myhorse.inventory;
 
 import com.hiphurra.myhorse.MyHorse;
-import net.minecraft.server.v1_16_R3.ItemStack;
-import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
-import net.minecraft.server.v1_16_R3.NBTTagCompound;
-import net.minecraft.server.v1_16_R3.NBTTagList;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTCompressedStreamTools;
+import net.minecraft.world.item.ItemStack;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -78,7 +78,7 @@ public class InventoryDataTagType implements PersistentDataType<PersistentDataCo
 
         ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 
-        nmsItem.save(nbtTagCompoundItem);
+        nmsItem.b(nbtTagCompoundItem);
 
         nbtTagListItems.add(nbtTagCompoundItem);
 

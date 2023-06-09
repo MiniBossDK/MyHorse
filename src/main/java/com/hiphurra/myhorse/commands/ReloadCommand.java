@@ -1,6 +1,8 @@
 package com.hiphurra.myhorse.commands;
 
 import com.hiphurra.myhorse.MyHorse;
+import com.hiphurra.myhorse.builders.Message;
+import com.hiphurra.myhorse.enums.LanguageString;
 import com.hiphurra.myhorse.enums.PermissionNode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,10 +17,12 @@ public class ReloadCommand implements Command {
     @Override
     public boolean execute(MyHorse plugin, CommandSender sender, String... args) {
         try {
-            plugin.loadConfigFiles();
             plugin.loadDefaultConfig();
             plugin.loadSettings();
             plugin.getLanguageManager().loadLanguageConfig();
+            plugin.loadConfigFiles();
+            Message message = new Message.MessageBuilder(plugin, LanguageString.ConfigFilesReloadSuccess).build();
+            message.sendMessage((Player) sender);
             plugin.logDebug(Level.INFO, "Configs has been reloaded!");
         } catch (IOException e) {
             plugin.logDebug(Level.SEVERE, "Couldn't reload config files!");

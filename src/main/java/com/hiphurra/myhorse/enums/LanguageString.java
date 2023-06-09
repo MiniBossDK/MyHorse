@@ -2,7 +2,7 @@ package com.hiphurra.myhorse.enums;
 
 public enum LanguageString {
 
-
+    ConfigFilesReloadSuccess(MessageType.SUCCESS),
     ComeHere(MessageType.INFO),
     YouPutAChestOnHorse(MessageType.INFO),
     HorseHasNoChest(MessageType.INFO),
@@ -15,6 +15,7 @@ public enum LanguageString {
     YouCannotClaimThisHorse(MessageType.SEVERE),
     YouMountedOwnedHorse(MessageType.INFO),
     CannotUseLockedHorse(MessageType.SEVERE),
+    ChestFeatureDisabled(MessageType.SEVERE),
     HorseLocked(MessageType.INFO),
     NoHorseWithSuchName(MessageType.SEVERE),
     HorseUnlocked(MessageType.INFO),
@@ -27,8 +28,9 @@ public enum LanguageString {
     YouRemovedFriendToHorse(MessageType.SUCCESS),
     PlayerNeverPlayedOnTheServer(MessageType.SEVERE),
     CannotUseNameTags(MessageType.SEVERE),
-    UseCommandToNameYourHorse(MessageType.INFO),
+    UseCommandToNameYourHorse(MessageType.SEVERE),
     SetHorseName(MessageType.SUCCESS),
+    HorseAlreadyHasChest(MessageType.SEVERE),
     NoPermissionForCommand(MessageType.SEVERE),
     YourOwnedHorsesList(MessageType.INFO),
     YouSetHorseForSale(MessageType.SUCCESS),

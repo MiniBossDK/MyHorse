@@ -36,10 +36,12 @@ public class TrustCommand implements Command {
     @Override
     public List<String> tab(MyHorse plugin, Player player, String... args) {
         OwnerData ownerData = new OwnerData(plugin, player.getUniqueId());
-        if(args.length == 2) return ownerData.getAllTrustedPlayers()
-                .stream()
-                .map(uuid -> Bukkit.getOfflinePlayer(uuid).getName())
-                .collect(Collectors.toList());
+        if(args.length == 2) {
+            return Bukkit.getOnlinePlayers().stream()
+                    .filter(onlinePlayer -> !onlinePlayer.getUniqueId().equals(player.getUniqueId()))
+                    .map(Player::getName)
+                    .collect(Collectors.toList());
+        }
         if(args.length == 3) {
             List<String> options = new ArrayList<>();
             options.add("*");

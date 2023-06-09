@@ -25,12 +25,15 @@ public class SetNameCommand implements Command {
 
         Player player = (Player) sender;
         Number amount = (Number) plugin.getSettings().get(Setting.SETNAME_COMMAND_PRICE);
-        if(!plugin.getEconomyManager().hasAmount(player, amount.doubleValue())) {
-            Message message = new Message.MessageBuilder(plugin, LanguageString.UseCommandToNameYourHorse)
-                    .setEconomyAmount(amount.doubleValue())
-                    .build();
-            message.sendMessage(player);
-            return true;
+        if(plugin.getEconomyManager() != null)
+        {
+            if(!plugin.getEconomyManager().hasAmount(player, amount.doubleValue())) {
+                Message message = new Message.MessageBuilder(plugin, LanguageString.UseCommandToNameYourHorse)
+                        .setEconomyAmount(amount.doubleValue())
+                        .build();
+                message.sendMessage(player);
+                return true;
+            }
         }
         Message message = new Message.MessageBuilder(plugin, LanguageString.InvalidHorseName).build();
         if(args.length > 1) {

@@ -23,7 +23,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -91,7 +90,7 @@ public class MyHorse extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MyHorseListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
         getServer().getPluginManager().registerEvents(new EconomyListener(this), this);
-        getServer().getPluginManager().registerEvents(new HorsePermissionListener(this), this);
+        getServer().getPluginManager().registerEvents(new HorseDamageListener(this), this);
         getServer().getPluginManager().registerEvents(new StableListener(this), this);
     }
 
@@ -179,10 +178,12 @@ public class MyHorse extends JavaPlugin {
         return allowedWorlds;
     }
 
+    // FIXME - Does not load changed settings before full server restart
     public void loadSettings() {
         for (Setting setting : Setting.values()) {
             String settingName = setting.name().toLowerCase();
-            if(!getDefaultConfig().contains("settings." + settingName)) {
+            if(!getDefaultConfig().contains("settings." + settingName))
+            {
                 getDefaultConfig().set("settings." + settingName, setting.getDefault());
                 try {
                     getDefaultConfig().save(new File(getDataFolder(), "config.yml"));
@@ -190,7 +191,7 @@ public class MyHorse extends JavaPlugin {
                     logDebug(Level.SEVERE, "Couldn't not save the default config file!");
                 }
             }
-            settings.put(setting, defaultConfig.get("settings." + settingName));
+            settings.put(setting, getDefaultConfig().get("settings." + settingName));
         }
     }
 
